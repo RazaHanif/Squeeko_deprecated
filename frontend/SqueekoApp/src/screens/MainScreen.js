@@ -4,6 +4,7 @@ import { useSpeechRecognition } from '../hooks/useSpeechRecognition'
 import { summarizeText, chatWithSummary } from '../services/app'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { View } from 'react-native-web'
+import { FlatList } from 'react-native-gesture-handler'
 
 const MainScreen = () => {
     const { isListening, transcript, error: speechError, startListening, stopListening } = useSpeechRecognition()
@@ -109,8 +110,22 @@ const MainScreen = () => {
                     <Text style = { style.label }>Summary:</Text>
                     { isLoading && !summary && <ActivityIndicator size = 'small' /> }
                     { summary && <Text style = { styles.summaryText }>{summary}</Text> }
-                    { apiError && !summary && <Text style = { styles.summaryText }>{summary}</Text> }
+                    { apiError && !summary && <Text style = { styles.error }>{apiError}</Text> }
                 </View>
+
+                {/* Chat Section */}
+                { summary && ( // Only show chat if summary exists 
+                    <View style = { styles.chatContainer }>
+                        <Text style = { styles.label }>Chat with Summary:</Text>
+                        <FlatList
+                            style = { styles.chatHistory }
+                            data = { chatHistory }
+                            key
+                        />
+
+                    </View>
+
+                )}
 
 
             </View>
