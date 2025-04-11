@@ -2,6 +2,8 @@ import React from 'react'
 import { useState, useEffect, useCallback } from 'react'
 import { useSpeechRecognition } from '../hooks/useSpeechRecognition'
 import { summarizeText, chatWithSummary } from '../services/app'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { View } from 'react-native-web'
 
 const MainScreen = () => {
     const { isListening, transcript, error: speechError, startListening, stopListening } = useSpeechRecognition()
@@ -78,5 +80,40 @@ const MainScreen = () => {
 
 
     // Render UI
-    return 
+    return (
+        <SafeAreaView style = { styles.safeArea }>
+            <View style = { styles.container }>
+                <Text style = { styles.title }>Squeeko</Text>
+
+                {/* Recording Section */}
+                <View style = { styles.section }>
+                    <Button
+                        title = { isListening ? 'Stop Recording' : 'Start Recording' }
+                        onPress = { isListening ? stopListening : startListening }
+                        disabled = { isLoading }
+                    />
+                    { isListening && <Text style = { styles.status }>Listening...</Text> }
+                    { speechError && <Text style = { styles.error }>Speech Error: { speechError }</Text> }
+                </View>
+
+                {/* Transcript Display */}
+                <ScrollView style = { styles.transcriptBox }>
+                    <Text style = { styles.label }>Live Transcript</Text>
+                    <Text>
+                        { transcript || ( isListening ? '...' : 'Press Start Recording' ) }
+                    </Text>
+                </ScrollView>
+
+                {/* Summary Section */}
+                <View style = { styles.section }>
+                    <Text style = { style.label }>Summary:</Text>
+                    { isLoading && !summary && <ActivityIndicator size = 'small' /> }
+                    { summary && <Text style = { styles.summaryText }>{summary}</Text> }
+                    { apiError && !summary && <Text style = { styles.summaryText }>{summary}</Text> }
+                </View>
+
+
+            </View>
+        </SafeAreaView>
+    )
 }
