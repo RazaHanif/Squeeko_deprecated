@@ -79,8 +79,34 @@ export const useSpeechRecognition = () => {
             setError('Microphone permission denied')
             return
         }
-        
+
+        // Default to US English, make this change to user region & make it configerable
+        try {
+            await Voice.start('en-US')
+            setIsListening(true)
+            setTranscript('')
+            setError('')
+        } catch (err) {
+            console.error('Error starting voice recognition', err)
+            setError(JSON.stringify(err))
+        }
     }
 
+    const stopListening = async () => {
+        try {
+            await Voice.stop()
+            setIsListening(false)
+        } catch (err) {
+            console.error('Error stopping voice recognition', err)
+            setError(JSON.stringify(err))
+        }
+    }
 
+    return {
+        isListening,
+        transcript,
+        error,
+        startListening,
+        stopListening,
+    }
 }
