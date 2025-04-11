@@ -1,0 +1,13 @@
+// IDK if i will use axios or if i use something else
+
+import axios from 'axios'
+
+// IMPORTANT: IDK whats going on here idk if i need this.
+const API_BASE_URL = 'http://127.0.0.1:3000/api'
+
+const apiClient = axios.create({
+    baseURL: API_BASE_URL,
+    headers: {
+        'Content-Type': 'application/json',
+    }
+})
