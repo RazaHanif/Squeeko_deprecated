@@ -89,6 +89,41 @@ app.post('/api/chat', async (req, res) => {
         { role: 'user', content: userMessage }
     ]
 
-    
-    
+    try {
+        const completion = await openai.chat.completions.create({
+            model: llmModel,
+            messages: messages,
+            max_tokens: 100, // Adjsut as needed
+            temperature: 0.7, // Adjsut as needed
+        })
+        const chatResponse = completion.choices[0]?.message?.content?.trim()
+
+        if (!chatResponse) {
+            throw new Error('LLM did not return a valid chat response')
+        }
+
+        console.log('Chat response generated')
+
+        // TODO: Save transcript & Summary to DB 
+        // Ideally save on user device locally
+
+        res.json({ response: chatResponse })
+        
+    } catch (err) {
+        console.error('Error calling LLM for Chat', err)
+        res.status(500).json({
+            error: 'Failed to get chat response',
+            details: err.message
+        })
+    }
+})
+
+// Basic root route
+app.get('/', (req, res) => {
+    res.send('Squeeko Backend is running!')
+})
+
+// Start server
+app.listen(port, () => {
+    console.log(`Server is live on port: ${ port }`)
 })
