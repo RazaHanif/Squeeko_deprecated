@@ -38,6 +38,49 @@ export const useSpeechRecognition = () => {
         setTranscript('')
         setError('')
     }, [])
+    
+    const onSpeechEnd = useCallback( (e) => {
+        console.log('onSpeechEnd:', e)
+        setIsListening(false)
+    }, [])
+    
+    // Idk what the setTranscript thing does
+    const onSpeechResults = useCallback( (e) => {
+        console.log('onSpeechResults:', e)
+        if (e.value && e.value.length > 0) {
+            setTranscript(e.value[0])
+        }
+    }, [])
+    
+    const onSpeechError = useCallback( (e) => {
+        console.log('onSpeechError:', e)
+        setError(JSON.stringify(e.error))
+        setIsListening(false)
+    }, [])
+
+    useEffect( () => {
+        // Setup listeners
+        Voice.onSpeechStart = onSpeechStart
+        Voice.onSpeechEnd = onSpeechEnd
+        Voice.onSpeechResults = onSpeechResults
+        Voice.onSpeechError = onSpeechError
+
+        // Unmount listeners
+        return () => {
+            Voice.destroy().then(Voice.removeAllListeners)
+        }
+    }, [onSpeechStart, onSpeechEnd, onSpeechResults, onSpeechError])
+
+    const startListening = async () => {
+        
+        // Check for user permission
+        const hasPermission = await requestAudioPermission()
+        if (!hasPermission) {
+            setError('Microphone permission denied')
+            return
+        }
+        
+    }
 
 
 }
