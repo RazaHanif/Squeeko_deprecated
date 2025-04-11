@@ -11,3 +11,23 @@ const apiClient = axios.create({
         'Content-Type': 'application/json',
     }
 })
+
+export const summarizeText = async (transcript) => {
+    try {
+        const response = await apiClient.post('/summarize', { transcript })
+        return response.data
+    } catch (err) {
+        console.error('API Error (summarizeText)', err.response?.data || err.message)
+        throw err
+    }
+}
+
+export const chatWithSummary = async (summary, userMessage, chatHistory = []) => {
+    try {
+        const response = await apiClient.post('/chat', { summary, userMessage, chatHistory })
+        return response.data
+    } catch (err) {
+        console.error('API Error (chatWithSummary)', err.response?.data || err.message)
+        throw err
+    }
+}
