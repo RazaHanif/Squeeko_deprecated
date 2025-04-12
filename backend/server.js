@@ -68,8 +68,8 @@ app.post('/api/summarize', async (req, res) => {
 })
 
 // Chat Route
-// Input: Transcript text
-// Output: Text Summary
+// Input: User Message 
+// Output: GPT Response
 app.post('/api/chat', async (req, res) => {
     const { summary, userMessage, chatHistory = [] } = req.body
 

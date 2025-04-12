@@ -6,6 +6,10 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { ActivityIndicator, View } from 'react-native-web'
 import { FlatList } from 'react-native-gesture-handler'
 
+
+// Literally no idea why i did this
+// Need to remake it but with the correct theme / design
+
 const MainScreen = () => {
     const { isListening, transcript, error: speechError, startListening, stopListening } = useSpeechRecognition()
     const [ summary, setSummary ] = useState('')

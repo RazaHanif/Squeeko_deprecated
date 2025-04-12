@@ -2,6 +2,15 @@ import { useState, useEffect, useCallback } from 'react'
 import Voice from '@react-native-voice/voice'
 import { PermissionsAndroid, Platform } from 'react-native'
 
+
+/* 
+This whole file IDK 
+I feel like i should redo this from scratch
+So i actually understand whats going on
+
+Might just keep the Function names and redo all the logic
+*/
+
 export const useSpeechRecognition = () => {
     const [ isListening, setIsListening ] = useState(false)
     const [ transcript, setTranscript ] = useState('')
