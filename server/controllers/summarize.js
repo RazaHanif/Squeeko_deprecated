@@ -1,11 +1,15 @@
-const Job = require('../models/Job')
-const { StatusCodes } = require('http-status-codes')
-const { BadRequestError, NotFoundError } = require('../errors')
+import OpenAI from 'openai'
+const openai = new OpenAI({
+    apiKey: process.env.TEST_API_KEY
+})
 
-const getAllJobs = async (req, res) => {
-  const jobs = await Job.find({ createdBy: req.user.userId }).sort('createdAt')
-  res.status(StatusCodes.OK).json({ jobs, count: jobs.length })
-}
+const model = 'gpt-4o-mini'
+
+const completiopn = openai.chat.completions.create({
+    model: model,
+    store
+})
+
 const getJob = async (req, res) => {
   const {
     user: { userId },
