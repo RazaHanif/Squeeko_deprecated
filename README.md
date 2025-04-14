@@ -31,7 +31,7 @@ Squeeko is a powerful SaaS platform that converts speech to text, provides AI-po
 
 ## 🔒 License
 
-This project is proprietary and not open source. All rights reserved.
+This project is proprietary and not open source, even tho you can read all the code here.... All rights reserved... i guess.
 
 ---
 
