@@ -17,4 +17,20 @@ app.get('/', (req, res) => {
     })
 })
 
+// Idk if this is the right setup for this, will need to check later
 const port = process.env.PORT || 3000
+
+// Server
+const start = async () => {
+    try {
+        app.listen(port, () => {
+            console.log(`Squeeko Server is live on port: ${port}`);            
+        })
+    } catch (err) {
+        console.log(err);
+        
+    }
+}
+
+
+start()
