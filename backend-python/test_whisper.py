@@ -15,9 +15,9 @@ start = time.time()
 # Declare device cpu & fp16 false - cuz intel sucks - this will change for prod 
 # for production the values change to: load_model(") & transcribe(audioPath)
 
-model = whisper.load_model("medium", device="cpu")
+model = whisper.load_model(whisper_model, device="cpu")
 print("Model Loaded")
-result = model.transcribe(faAudio, fp16=False, task="translate")
+result = model.transcribe(enAudio, fp16=False, task="translate")
 
 end = time.time()
 
