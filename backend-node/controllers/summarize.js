@@ -1,4 +1,4 @@
-import OpenAI from 'openai'
+import OpenAI from 'openai/index.mjs'
 const openai = new OpenAI({
     apiKey: process.env.TEST_API_KEY
 })

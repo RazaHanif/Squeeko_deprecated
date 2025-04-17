@@ -1,0 +1,7 @@
+venv/
+__pychache__/
+*.log
+.env
+
+# i dont think i need this one here
+node_modules/
