@@ -9,7 +9,7 @@ whisper_model = os.getenv("WHISPER_MODEL", "tiny")
 enAudio = "./audio/test_en.mp3"
 faAudio = "./audio/test_fa.mp3"
 
-print("Model Start")
+print("Loading in Model")
 start = time.time()
 
 # Declare device cpu & fp16 false - cuz intel sucks - this will change for prod 
@@ -23,5 +23,4 @@ end = time.time()
 
 print(f"Transcription Completed: {end - start:2f} seconds")
 
-print("Audio to Text Result:")
 print(result["text"])
