@@ -22,6 +22,10 @@ async def run(audio_url: str) ->  str:
     # Run transcribtion | locking to FP32 & translating any non english to english
     result = model.transcribe(audio_url, fp16=False, task="translate")
     
+    # ToDo: fix this error handling
+    if not result["text"]:
+        return "Error: no text was transcribed"
+
     # Return only the transcribed text for now...
     return result["text"]
 
