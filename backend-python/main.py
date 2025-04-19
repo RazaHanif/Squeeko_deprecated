@@ -100,6 +100,14 @@ def merge_transcription_and_diarization(
                     dia_seg = diarization_segments[diarization_index]
                     dia_start = dia_seg.get("start", float('-inf'))
                     dia_end = dia_seg.get("end", float('inf'))
+                    
+                    if max(segment_start_abs_sec, dia_start) < min(segment_end_abs_sec, dia_end):
+                        current_speaker = dia_seg.get("speaker", "Unknown")
+                        
+                merged_segments.append({
+                    "speaker": current_speaker,
+                    "start": round(segment_start_abs_sec, 3)
+                })
     
 
 # --- Routes
