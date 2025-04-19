@@ -32,11 +32,20 @@ whisper_model_instance = None
 
 def load_whisper_model():
     """ Loads Whisper model into memory. Intended to be called once at startup """
-    
-
-# Manually setting device -> CPU & FP16 -> False | Cuz intel mac sucks - will be changed in prod
-# for prod the values are: load_model("medium or large") & model.transcribe(audioPath, task="translate")
-
+    global whisper_model_instance
+    if whisper_model_instance is None:
+        try:
+            whisper_model_instance = whisper.load_model(WHISPER_MODEL_NAME, device=DEVICE)
+            if DEVICE == "cpu" and USE_FP16:
+                USE_FP16 = False
+                whisper_model_instance.to(torch.float32)
+            elif DEVICE == "cuda" and not USE_FP16:
+                whisper_model_instance.to(torch.float32)
+                 
+        except Exception as e:
+            print(f"Error loading Whisper model '{WHISPER_MODEL_NAME}' on device '{DEVICE}': {e}")
+            whisper_model_instance = None
+            
 
 def prepare_audio(audio_url: str) -> list[AudioSegment] | None:
     """
@@ -72,22 +81,101 @@ def prepare_audio(audio_url: str) -> list[AudioSegment] | None:
         return None
             
 
-def run(audio_list):
-    output = []
-    for chunk in audio_list:
-        output += transcribe_audio(chunk)
-    return output
+async def transcribe_chunk_async(audio_chunk: AudioSegment, chunk_index: int) -> dict | None:
+    """
+    Asynchronously transcribes a single audio chunk using the loaded Whisper model.
+    Runs the blocking transcribe call in a thread pool to avoid blocking the event loop.
 
-async def transcribe_audio(audio_url) ->  str:
-    # Load model into cache
-    model = whisper.load_model(whisper_model, device="cpu")
-    
-    # Run transcribtion | locking to FP32 & translating any non english to english
-    result = model.transcribe(audio_url, fp16=False, task="translate")
-    
-    # ToDo: fix this error handling
-    if not result["text"]:
-        return "Error: no text was transcribed"
+    Args:
+        audio_chunk (AudioSegment): The AudioSegment chunk to transcribe (expected mono, 16kHz, 16-bit).
+        chunk_index (int): The index of the chunk (for logging/debugging).
 
-    # Return only the transcribed text for now...
-    return result["text"]
+    Returns:
+        dict: The full result dictionary from model.transcribe, or None on critical error.
+              Includes an 'error' key if transcription failed for this chunk.
+    """
+    global whisper_model_instance
+    if whisper_model_instance is None:
+        return {"error": f"STT Model not loaded for chunk {chunk_index}"}
+    
+    # Convert AudioSegment to a format Whisper can accept (Numpy Array)
+    try:
+        audio_data_int = np.array(audio_chunk.get_array_of_samples())
+        
+        if audio_chunk.sample_width == 2: # 16-bit audio
+            audio_data_float32 = audio_data_int.astype(np.float32) / 32768.0
+        elif audio_chunk.sample_width ==4: # 32-bit audio
+            audio_data_float32 = audio_data_int.astype(np.float32) / 2147483648.0
+        else: 
+            audio_data_float32 = audio_data_int.astype(np.float32) / 32768.0
+        
+    except Exception as e:
+            return {"error": f"Audio prep error for chunk {chunk_index}"}
+        
+        
+    # Run the sync model.transcrive call in a thread pool
+    # Crucial for non blocking asyncio event loop
+    
+    loop = asyncio.get_running_loop()
+    transcription_result = None
+    try:
+        transcription_result = await loop.run_in_executor(
+            None, # Use the default thread pool provided by asyncio
+            whisper_model_instance.transcribe, # The blocking method to call
+            audio_data_float32,
+            task="translate",
+            fp16=USE_FP16,
+        )
+    except Exception as e:
+        transcription_result = {"text": f"[[Transcription Error for chunk {chunk_index}: {e}]]", "segments": [], "language": "error", "error": str(e)}
+
+    return transcription_result
+
+
+async def run_transcription_pipeline(audio_url: str) -> list[dict] | None:
+    """
+    Full asynchronous pipeline: prepare audio, transcribe chunks concurrently.
+
+    Args:
+        audio_url (str): The file path or URL of the input audio file.
+
+    Returns:
+        list[dict]: A list of transcription result dictionaries for each chunk,
+                    including error information if any chunk failed.
+                    Returns None if audio preparation failed entirely.
+                    Returns an empty list if audio preparation resulted in no chunks.
+    """
+    
+    # Run prepare_audio and get chunks
+    audio_chunks = prepare_audio(audio_url)
+    
+    if audio_chunks is None:
+        # Pipeline failure
+        return None 
+    
+    if not audio_chunks:
+        # No audio to transcribe
+        return []
+    
+    # Create and run transcriptions concurrently
+    
+    transcription_tasks = [
+        transcribe_chunk_async(chunk, i) for i, chunk in enumerate(audio_chunks)
+    ]
+    
+    # Run tasks concurrently using asyncio.gather
+    results = await asyncio.gather(*transcription_tasks, return_exceptions=True)
+    
+    
+    # Process results (Handle errors, combine)
+    
+    final_transcripts = []
+    for i, result in enumerate(results):
+        if isinstance(result, Exception):                       # Catches exceptions from transcrive_chunkasync
+            final_transcripts.append(results)
+        elif isinstance(result, dict) and "text" in result:     # Succesfully transcribed chunk
+            final_transcripts.append(result)
+        else:                                                   # Unexpected result format
+            final_transcripts.append({"text": f"[[Unexpected result format for chunk {i}]]", "segments": [], "language": "unknown"})
+
+    return final_transcripts
