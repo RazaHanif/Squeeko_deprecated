@@ -4,7 +4,12 @@ import os
 # Returns duraction of audio file in seconds
 def get_audio_duration(file_path: str) -> float:
     # TODO: use pydub to calculate duration
-    pass
+    file_type = is_supported(file_path)
+        
+    if file_type is not None:
+        return 
+    else:
+        return 0
 
 # Checks if audio file is in a supported format
 def is_supported(file_path: str) -> bool:
@@ -16,6 +21,6 @@ def is_supported(file_path: str) -> bool:
     
     # Check if file is supported
     if file_type in supported_formats:
-        return True
+        return file_type
     else:
-        return False
+        return None
