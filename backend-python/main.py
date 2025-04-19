@@ -82,7 +82,16 @@ def merge_transcription_and_diarization(
     for chunk_index, chunk_result in enumerate(transcription_results):
         if isinstance(chunk_result, dict) and "segments" in chunk_result:
             # Calc absolute start time of the current chunk in seconds
-            chunk_start_time_ms = chunk_index * (chunk_length_ms / 1000.00)
+            chunk_start_time_abs_sec = chunk_index * (chunk_length_ms / 1000.00)
+            
+            for segment in chunk_result["segments"]:
+                segment_start_abs_sec = chunk_start_time_abs_sec + segment.get("start", 0)
+                segment_end_abs_sec = chunk_start_time_abs_sec + segment.get("end", 0)
+                
+                # Find corresonding speaker for this segment
+                current_speaker - "Unknown"
+                
+                
     
 
 # --- Routes
