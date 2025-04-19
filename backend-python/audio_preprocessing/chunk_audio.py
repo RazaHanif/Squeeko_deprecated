@@ -36,4 +36,6 @@ def split(audio_segment: AudioSegment, chunk_length_ms: int = 30000) -> list[Aud
         chunks.append(chunk)
         
         # Update pointer
+        current_start_ms += chunk_length_ms
         
+    return chunks
