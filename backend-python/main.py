@@ -137,8 +137,11 @@ async def transcribe_audio(
         # --- Clean up temp files
         # Scheduled with BackgroundTasks, ensures this happens AFTER the HTTP response has been sent
         if temp_file_path and os.path.exists(temp_file_path):
+            print(f"Cleaning up temp file: {temp_file_path}")
             background_tasks.add_task(os.remove, temp_file_path)
-
+        else:
+            print("No files to cleanup")
+            
 
 
 @app.post("/diarize")
