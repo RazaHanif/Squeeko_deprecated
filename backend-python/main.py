@@ -77,7 +77,12 @@ def merge_transcription_and_diarization(
     diarization_index = 0
     
     # Assume fixed chunk length (maybe gloablize with CHUNK_LENGTH)
-    chunk_length_ms = 3000
+    chunk_length_ms = 30000
+    
+    for chunk_index, chunk_result in enumerate(transcription_results):
+        if isinstance(chunk_result, dict) and "segments" in chunk_result:
+            # Calc absolute start time of the current chunk in seconds
+            chunk_start_time_ms = chunk_index * (chunk_length_ms / 1000.00)
     
 
 # --- Routes
