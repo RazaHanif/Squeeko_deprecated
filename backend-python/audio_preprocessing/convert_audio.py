@@ -12,9 +12,16 @@ AUDIO_LOADERS = {
     "webm": AudioSegment.from_webm
 }
 
-# Converts input audio file to WAV for processing in whisper
-# Returns new WAV file
 def to_wav(input_path: str) -> AudioSegment:
+    """ 
+    Converts a supported audio file into a pydub AudioSegment object in WAV format
+    
+    Args:
+        input_path (str): The file path for the original audio file
+        
+    Returns:
+        AudioSegment: A pydub AudioSegment object in WAV format, or None if the conversion fails or format is not supported.
+    """
     if not is_supported(input_path):
         return None
     # TODO: load audio file using pydub
