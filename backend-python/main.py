@@ -61,19 +61,25 @@ def root():
     return {"message": "Squeeko backend is live!"}
 
 @app.post("/transcribe")
-async def transcribe_audio(data: models.AudioRequest, auth: bool = Depends(require_auth)):
-    # Assume diari
-    
-    result = await transcribe.run(data.audio_url)
-    return {"transcript": result}
+
+
+
 
 
 @app.post("/diarize")
 async def diarize_audio(data: models.AudioRequest, auth: bool = Depends(require_auth)):
-    result = await diarize.run(data.audio_url)
-    return {"speaker_segments": result}
+    try:
+        result = await diarize.run(data.audio_url)
+        return {"speaker_segments": result}
+    except Exception as e:
+        print(f"An error occurred during diarization: {e}")
+        raise HTTPException(status_code=500, detail="Diarization failed.")
 
 @app.post("/summarize")
 async def summarize_audio(data: models.AudioRequest, auth: bool = Depends(require_auth)):
-    result = await summarize.run(data.audio_url)
-    return {"summary": result}
+    try:
+        result = await summarize.run(data.audio_url)
+        return {"summary": result}
+    except Exception as e:
+        print(f"An error occurred during summarization: {e}")
+        raise HTTPException(status_code=500, detail="Summarization failed.")
