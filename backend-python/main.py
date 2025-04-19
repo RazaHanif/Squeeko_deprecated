@@ -61,8 +61,61 @@ def root():
     return {"message": "Squeeko backend is live!"}
 
 @app.post("/transcribe")
-
-
+async def transcribe_audio(
+    audio_file: UplaodFile = File(...),
+    auth: bool = Depends(require_auth),
+    background_tasks = BackgroundTasks
+):
+    """ 
+    Receives an audio file upload, processes it through the transcription pipleine and returns the transcription result.
+    Handles temporary file storage and cleanup
+    """
+    
+    # Check if model loaded successfully
+    if transcribe.whisper_model_instance is None:
+        raise HTTPException(
+            status_code=503,
+            detail="Transcription service is not ready. Model failed to load on startup"
+        )
+        
+    # Handle uploaded file: Temp storage
+    # audio pipeline expects file path
+    # Save the uplaoded file to a temp file server side
+    temp_file_path = None
+    try:
+        # Create a temp file with original file extension
+        file_extension = os.path.splitext(audio_file.filename)[1] if audio_file.filename else ".tmp"
+        with tempfile.NamedTemporaryFile(
+            delete=False,
+            suffix=file_extension
+        ) as tmp_upload_file:
+            temp_file_path = tmp_upload_file.name
+            await audio_file.seek(0)
+            while content :=  await audio_file.read(1024 * 1024):
+                tmp_upload_file.write(content)
+        
+        # --- Run Pipeline
+        transcription_results = await transcribe.run_transcription_pipeline(temp_file_path)
+        
+        
+        # --- Handle Pipeline results
+        if transcription_results is None:
+            raise HTTPException(
+                status_code=500,
+                detail="Audio Processing Failed!"
+            )
+        
+        if not transcription_results:
+            # Pipeline returned empty list
+            return {
+                "message": "No audio contetnt detected, or processing resulted in no chunks",
+                "transcript": ""
+            }
+            
+        # --- Format final response
+        
+    except Exception as e:
+        pass
 
 
 
