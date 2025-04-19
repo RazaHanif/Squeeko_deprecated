@@ -1,39 +1,28 @@
-from pydub import AudioSegment
 import os
-
-AUDIO_LOADERS = {
-    "mp3": AudioSegment.from_mp3,
-    "m4a": AudioSegment.from_m4a,
-    "ogg": AudioSegment.from_ogg,
-    "flac": AudioSegment.from_flac,
-    "webm": AudioSegment.from_webm
-}
+import pydub
+import subprocess
+import tempfile
 
 def to_wav(input_path: str) -> AudioSegment | None:
     """ 
-    Converts a supported audio file into a pydub AudioSegment object in WAV format
+    Converts a supported audio file to WAV format using FFmpeg via subproccess, then loads the resulting WAV into a pydub AudioSegment.
     
     Args:
         input_path (str): The file path for the original audio file
         
     Returns:
-        AudioSegment: A pydub AudioSegment object in WAV format, or None if the conversion fails or format is not supported.
+        AudioSegment: A pydub AudioSegment object in WAV format, or None if the conversion fails
     """
-    try: 
-        _, extension = os.path.splitext(input_path)
-        file_type = extension.lstrip('.').lower()
-        
-        if file_type == "wav":
-            # send back 16 bit pcm just to be safe
-            audio = AudioSegment.from_wav(input_path)
-            return audio.set_sample_width(2)
     
-        audio = AUDIO_LOADERS[file_type](input_path)
-        return audio.export("temp.wav", format="wav")
-    
-    except FileNotFoundError:
-        print(f"Error: Input file '{input_path}' not found.")
-        return None
-    except Exception as e:
-        print(f"An error occurred during conversion: {e}")
-        return None
+    # Create a temp file with a .wav extension to store the FFmpeg output
+    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp_file:
+        output_path = tmp_file.name
+
+
+    # FFmpeg command to convert the input to most optimized file type for Whisper
+    # Format: WAV | Codec: PCM 16-Bit | Sample Rate: 16kHz | Channel: Mono | 
+    command = [
+        "ffmpeg",
+        "-i", input_path,
+        ""
+    ]
