@@ -17,11 +17,21 @@ from contextlib import asynccontextmanager
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """ 
-    Loads the Whisper model when the application starts
+    Loads the Whisper and Pyannote model when the application starts
     """
     print("Starting up application")
     print("Loading up Whisper model")
     transcribe.load_whisper_model()
+    diarize.load_pyannote_pipeline(from_local_cache_only=False)
+    
+     # Optional: Check if both models loaded successfully and raise error if critical
+    if transcribe.whisper_model_instance is None:
+        print("Startup Error: Whisper model failed to load. Transcription will not work.")
+        # raise RuntimeError("Whisper model load failed")
+    if diarize.pyannote_pipeline_instance is None:
+        print("Startup Error: Pyannote pipeline failed to load. Diarization will not work.")
+        # raise RuntimeError("Pyannote pipeline load failed")
+    
     print("Model is loaded")
     yield
     
@@ -44,6 +54,31 @@ async def require_auth(request: Request):
         raise HTTPException(status_code=401, detail="Unauthorized")
     return True
 
+# --- Helper
+def merge_transcription_and_diarization(
+    transcription_results: list[dict], # List of chunk results from transcribe.run_transcription_pipeline
+    diarization_segments: list[dict], # List of speaker segments from diarize.run
+    original_audio_length_ms: int # Needed to calculate absolute chunk times
+) -> list[dict]:
+    """
+    Merges transcription results (with segment timestamps relative to chunks)
+    with speaker diarization segments (with absolute timestamps).
+
+    Args:
+        transcription_results (list[dict]): Results from transcribe.run_transcription_pipeline.
+        diarization_segments (list[dict]): Results from diarize.run.
+        original_audio_length_ms (int): The length of the original audio in milliseconds.
+
+    Returns:
+        list[dict]: A list of merged segments, each including speaker, absolute start/end times, and text.
+                    Includes error markers for failed chunks.
+    """
+    merged_segments = []
+    diarization_index = 0
+    
+    # Assume fixed chunk length (maybe gloablize with CHUNK_LENGTH)
+    chunk_length_ms = 3000
+    
 
 # --- Routes
 
