@@ -113,9 +113,26 @@ async def transcribe_audio(
             }
             
         # --- Format final response
+        combined_text = " ".join([
+            r.get("text", "").strip() 
+            for r in transcription_results
+            if isinstance(r, dict) and "text"in r
+        ])
         
+        # OR return the list for more flexible client-side feautres
+        # return {"chunks": transcription_results}
+        
+        # --- Return the successful response
+        return {"transcript": combined_text}
+        
+    except HTTPException as e:
+        raise e
     except Exception as e:
-        pass
+        raise HTTPException(
+            status_code=500,
+            detail=f"An internal server error occurred during transcription: {e}"
+        )
+    
 
 
 
