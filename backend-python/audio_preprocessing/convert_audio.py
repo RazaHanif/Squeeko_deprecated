@@ -21,8 +21,11 @@ def to_wav(input_path: str) -> AudioSegment | None:
 
     # FFmpeg command to convert the input to most optimized file type for Whisper
     # Format: WAV | Codec: PCM 16-Bit | Sample Rate: 16kHz | Channel: Mono | 
-    command = [
-        "ffmpeg",
-        "-i", input_path,
-        ""
+    commmand = [
+        "ffmpeg", 
+        "-i", input_path, 
+        "-acodec", "pcm_s16le", 
+        "-ac", "1", 
+        "-ar", "16000", 
+        output_path
     ]
