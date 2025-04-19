@@ -1,5 +1,6 @@
 import os
 import torch
+import asyncio
 from pyannote.audio import Pipeline
 
 
@@ -64,4 +65,31 @@ async def run(audio_file_path: str) -> list[dict] | None:
         print("Pyannote pipeline not loaded")
         return None
     
+    try:
+        # Pyannote pipeline is synchronous and blocking
+        # Must run in a thread pool using run_in_executor
+        
+        loop = asyncio.get_running_loop()
+        
+        diarization_annotation = await loop.run_in_executor(
+            None, 
+            pyannote_pipeline_instance,
+            audio_file_path
+        )
+        
+        # Convert Annotation segments to a list of dicts
+        
+        speaker_segments = []
+        
+        for segment, track, speaker in diarization_annotation.itertracks(yield_label=True):
+            speaker_segments.append({
+                "speaker": speaker,
+                "start": round(segment.start, 3),
+                "end": round(segment.end, 3)
+            })
+            
+        return speaker_segments
     
+    except Exception as e:
+        print(f"An error occurred during diarization: {e}")
+        return None

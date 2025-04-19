@@ -1,9 +1,3 @@
-# This is where the main python API will live
-# Will support endpoints for the Whisper Model & Pyannote
-
-# Please go watch the 20min youtube fast api intro - link in notes.md
-# FastAPI == newer Django? == node.py
-
 from fastapi import FastAPI, Request, Depends, HTTPException, BackgroundTasks
 from fastapi import UplaodFile, File
 
