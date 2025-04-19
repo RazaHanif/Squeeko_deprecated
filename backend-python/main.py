@@ -5,8 +5,14 @@
 # FastAPI == newer Django? == node.py
 
 from fastapi import FastAPI, Request, Depends, HTTPException, BackgroundTasks
-from models import AudioRequest, SummaryRequest
+from fastapi import UplaodFile, File
+
+import tempfile
+import os
+import shutil
 from tasks import transcribe, diarize, summarize
+
+from models import AudioRequest, SummaryRequest
 from utils.auth import verify_token
 
 app = FastAPI()
