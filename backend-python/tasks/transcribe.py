@@ -172,7 +172,7 @@ async def run_transcription_pipeline(audio_url: str) -> list[dict] | None:
     final_transcripts = []
     for i, result in enumerate(results):
         if isinstance(result, Exception):                       # Catches exceptions from transcrive_chunkasync
-            final_transcripts.append(results)
+            final_transcripts.append(result)
         elif isinstance(result, dict) and "text" in result:     # Succesfully transcribed chunk
             final_transcripts.append(result)
         else:                                                   # Unexpected result format
