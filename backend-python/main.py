@@ -91,7 +91,15 @@ def merge_transcription_and_diarization(
                 # Find corresonding speaker for this segment
                 current_speaker - "Unknown"
                 
-                
+                # Advance the diarization_index to efficiently find potentially overlapping segments
+                while diarization_index < len(diarization_segments) -1 and diarization_segments[diarization_index + 1].get("start", float('inf')) <= segment_start_abs_sec:
+                    diarization_index += 1
+                    
+                # Now, check the current diarization segment (at diarization_index) for overlap
+                if diarization_index < len(diarization_segments):
+                    dia_seg = diarization_segments[diarization_index]
+                    dia_start = dia_seg.get("start", float('-inf'))
+                    dia_end = dia_seg.get("end", float('inf'))
     
 
 # --- Routes
