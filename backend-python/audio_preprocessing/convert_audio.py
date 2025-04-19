@@ -1,18 +1,15 @@
 from pydub import AudioSegment
-from utils import is_supported
 import os
 
-SUPPORTED_FORMATS = ["mp3", "wav", "m4a", "acc", "ogg", "flac", "webm"]
 AUDIO_LOADERS = {
     "mp3": AudioSegment.from_mp3,
-    "wav": AudioSegment.from_wav,
     "m4a": AudioSegment.from_m4a,
     "ogg": AudioSegment.from_ogg,
     "flac": AudioSegment.from_flac,
     "webm": AudioSegment.from_webm
 }
 
-def to_wav(input_path: str) -> AudioSegment:
+def to_wav(input_path: str) -> AudioSegment | None:
     """ 
     Converts a supported audio file into a pydub AudioSegment object in WAV format
     
@@ -22,13 +19,19 @@ def to_wav(input_path: str) -> AudioSegment:
     Returns:
         AudioSegment: A pydub AudioSegment object in WAV format, or None if the conversion fails or format is not supported.
     """
-    if not is_supported(input_path):
+    try: 
+        _, extension = os.path.splitext(input_path)
+        file_type = extension.lstrip('.').lower()
+        
+        if file_type == "wav":
+            return AudioSegment.from_wav(input_path)
+    
+        audio = AUDIO_LOADERS[file_type](input_path)
+        return audio.export("temp.wav", format="wav")
+    
+    except FileNotFoundError:
+        print(f"Error: Input file '{input_path}' not found.")
         return None
-    # TODO: load audio file using pydub
-    
-    # TODO: export it as WAV with 16bit PCM, mono, 44100HZ?? idk what that means 
-    
-    
-    # TODO: Save to a /temp or /processsed folder and return path
-    
-    pass
+    except Exception as e:
+        print(f"An error occurred during conversion: {e}")
+        return None
