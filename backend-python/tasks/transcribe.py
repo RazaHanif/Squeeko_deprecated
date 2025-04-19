@@ -27,11 +27,16 @@ faAudio = "./audio/test_fa.mp3"
 def prepare_audio(audio_url):
     wav_file = convert_audio.to_wav(audio_url)
     trimmed_file = trim_silence.apply(wav_file)
-    downsampled_file = downscale_audio.to_16k(trimmed_file)
-    chunks = chunk_audio.split(downsampled_file)
+    chunks = chunk_audio.split(trimmed_file)
     return chunks
 
-async def run(audio_url: str) ->  str:
+def run(audio_list):
+    output = []
+    for chunk in audio_list:
+        output += transcribe_audio(chunk)
+    return output
+
+async def transcribe_audio(audio_url) ->  str:
     # Load model into cache
     model = whisper.load_model(whisper_model, device="cpu")
     
@@ -44,5 +49,3 @@ async def run(audio_url: str) ->  str:
 
     # Return only the transcribed text for now...
     return result["text"]
-
-
