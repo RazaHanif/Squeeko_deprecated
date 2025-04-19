@@ -12,8 +12,9 @@ import os
 import shutil
 from tasks import transcribe, diarize, summarize
 
-from models import AudioRequest, SummaryRequest
-from utils.auth import verify_token
+# Idk if i need these models?
+import models
+import utils.auth
 
 app = FastAPI()
 
