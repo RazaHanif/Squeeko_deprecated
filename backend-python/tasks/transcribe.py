@@ -1,8 +1,10 @@
 # Get all the logic already created in test_whisper.py
 from dotenv import load_dotenv
+from pydub import AudioSegment
 import os
 import whisper
 import time
+
 
 from audio_preprocessing import (
     chunk_audio,
@@ -23,10 +25,10 @@ faAudio = "./audio/test_fa.mp3"
 
 
 def prepare_audio(audio_url):
-    wav_path = convert_audio.to_wav(audio_url)
-    trimmed_path = trim_silence.apply(wav_path)
-    downsampled_path = downscale_audio.to_16k(trimmed_path)
-    chunks = chunk_audio.split(downsampled_path)
+    wav_file = convert_audio.to_wav(audio_url)
+    trimmed_file = trim_silence.apply(wav_file)
+    downsampled_file = downscale_audio.to_16k(trimmed_file)
+    chunks = chunk_audio.split(downsampled_file)
     return chunks
 
 async def run(audio_url: str) ->  str:
