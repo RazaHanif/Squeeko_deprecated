@@ -23,12 +23,39 @@ faAudio = "./audio/test_fa.mp3"
 # for prod the values are: load_model("medium or large") & model.transcribe(audioPath, task="translate")
 
 
-def prepare_audio(audio_url: str) -> list[AudioSegment]:
+def prepare_audio(audio_url: str) -> list[AudioSegment] | None:
+    """
+    Handles the full audio preprocessing pipeline: convert, trim, chunk.
+
+    Args:
+        audio_url (str): The file path or URL of the input audio file.
+
+    Returns:
+        list[AudioSegment]: A list of 30-second AudioSegment chunks,
+                            or None if processing fails.
+    """
+    try:
+        audio_wav = convert_audio.to_wav(audio_url)
+        
+        if audio_wav is None:
+            return None
+        
+        trimmed_audio = trim_silence.apply(audio_wav)
+        
+        if trimmed_audio is None or len(trimmed_audio) == 0:
+            return []
+        
+        chunks = chunk_audio.split(trimmed_audio, chunk_length_ms=30000)
+        
+        if not chunks:
+            return []
+        
+        return chunks
     
-    wav_file = convert_audio.to_wav(audio_url)
-    trimmed_file = trim_silence.apply(wav_file)
-    chunks = chunk_audio.split(trimmed_file)
-    return chunks
+    except Exception as e:
+        print(f"An error occurred during audio prep: {e}")
+        return None
+            
 
 def run(audio_list):
     output = []
