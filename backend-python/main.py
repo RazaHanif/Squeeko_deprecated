@@ -133,6 +133,11 @@ async def transcribe_audio(
             detail=f"An internal server error occurred during transcription: {e}"
         )
     
+    finally:
+        # --- Clean up temp files
+        # Scheduled with BackgroundTasks, ensures this happens AFTER the HTTP response has been sent
+        if temp_file_path and os.path.exists(temp_file_path):
+            background_tasks.add_task(os.remove, temp_file_path)
 
 
 
