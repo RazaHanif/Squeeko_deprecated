@@ -16,12 +16,37 @@ from tasks import transcribe, diarize, summarize
 import models
 import utils.auth
 
-app = FastAPI()
 
-# Middleware or dependency to protect routes
+# --- Lifespan event for applicaiton startup/shutdown
+from contextlib import asynccontextmanager
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """ 
+    Loads the Whisper model when the application starts
+    """
+    print("Starting up application")
+    print("Loading up Whisper model")
+    transcribe.load_whisper_model()
+    print("Model is loaded")
+    yield
+    
+    print("Shutting down application")
+    
+# --- Initalize FastAPI with the lifespan
+
+app = FastAPI(lifespan=lifespan)
+
+
+# --- Auth Dependancy
 async def require_auth(request: Request):
+    """ 
+    FastAPI Dependency to require auth
+    Checks for a valid token in the Auth header
+    """
+    
     token = request.headers.get("Authorization")
-    if not token or not await verify_token(token):
+    if not token or not await utils.auth.verify_token(token):
         raise HTTPException(status_code=401, detail="Unauthorized")
     return True
 
