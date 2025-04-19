@@ -24,7 +24,9 @@ def to_wav(input_path: str) -> AudioSegment | None:
         file_type = extension.lstrip('.').lower()
         
         if file_type == "wav":
-            return AudioSegment.from_wav(input_path)
+            # send back 16 bit pcm just to be safe
+            audio = AudioSegment.from_wav(input_path)
+            return audio.set_sample_width(2)
     
         audio = AUDIO_LOADERS[file_type](input_path)
         return audio.export("temp.wav", format="wav")
