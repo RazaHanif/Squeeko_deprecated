@@ -1,10 +1,13 @@
-# Get all the logic already created in test_whisper.py
-from dotenv import load_dotenv
-from pydub import AudioSegment
-import os
+import asyncio
+import numpy as np
+import torch
 import whisper
+import os
 import time
+from pydub import AudioSegment
 
+# Just for testing rn?
+from dotenv import load_dotenv
 
 from audio_preprocessing import (
     chunk_audio,
@@ -12,12 +15,24 @@ from audio_preprocessing import (
     trim_silence
 )
 
-load_dotenv()
-whisper_model = os.getenv("WHISPER_MODEL", "tiny")
-
 # Audio files for testing
 enAudio = "./audio/test_en.mp3"
 faAudio = "./audio/test_fa.mp3"
+
+# --- Config ---
+load_dotenv()
+WHISPER_MODEL_NAME = os.getenv("WHISPER_MODEL", "tiny") # Use medium for prod
+
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+
+USE_FP16 = DEVICE == "cuda"
+
+# Load model on start
+whisper_model_instance = None
+
+def load_whisper_model():
+    """ Loads Whisper model into memory. Intended to be called once at startup """
+    
 
 # Manually setting device -> CPU & FP16 -> False | Cuz intel mac sucks - will be changed in prod
 # for prod the values are: load_model("medium or large") & model.transcribe(audioPath, task="translate")
