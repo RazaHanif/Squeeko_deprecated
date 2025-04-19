@@ -15,6 +15,8 @@ faAudio = "./audio/test_fa.mp3"
 # for prod the values are: load_model("medium or large") & model.transcribe(audioPath, task="translate")
 
 
+
+
 async def run(audio_url: str) ->  str:
     # Load model into cache
     model = whisper.load_model(whisper_model, device="cpu")
