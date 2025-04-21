@@ -1,6 +1,7 @@
 from pydub import AudioSegment
+import os
 
-def split(audio_segment: AudioSegment, chunk_length_ms: int = 30000) -> list[AudioSegment]:
+def split(audio_segment: AudioSegment, chunk_length_ms: int = os.getenv("CHUNK_MS")) -> list[AudioSegment]:
     """
     Splits an AudioSegment into chunks of a specified length.
 

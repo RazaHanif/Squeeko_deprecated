@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Request, Depends, HTTPException, BackgroundTasks
-from fastapi import UplaodFile, File
+from fastapi import UploadFile, File
 
 import tempfile
 import os
@@ -186,7 +186,7 @@ def root():
 
 @app.post("/transcribe")
 async def transcribe_audio(
-    audio_file: UplaodFile = File(...),
+    audio_file: UploadFile = File(...),
     auth: bool = Depends(require_auth),
     background_tasks = BackgroundTasks
 ):
@@ -270,7 +270,7 @@ async def transcribe_audio(
 # * Might replace prevous transcribe route * 
 @app.post("/transcribe_and_diarize")
 async def transcribe_and_diarize_audio(
-    audio_file: UplaodFile = File(...),
+    audio_file: UploadFile = File(...),
     auth: bool = Depends(require_auth),
     background_tasks = BackgroundTasks
 ):
