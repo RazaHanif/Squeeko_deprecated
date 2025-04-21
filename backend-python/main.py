@@ -290,11 +290,78 @@ async def transcribe_and_diarize_audio(
         
     temp_file_path = None
     original_audio_length_ms = 0
+    
+    try:
+        # Handle uploaded file: Temp storage
+        
+        file_extension = os.path.splitext(audio_file.filename)[1] if audio_file.filename else ".tmp"
+        with tempfile.NamedTemporaryFile(
+            delete=False,
+            suffix=file_extension
+        ) as tmp_upload_file:
+            temp_file_path = tmp_upload_file.name
+            await audio_file.seek(0)
+            
+            while content := audio_file.read(1024 * 1024):
+                tmp_upload_file.write(content)
 
+        try:
+            audio_segment_info = AudioSegment.from_file(temp_file_path)
+            original_audio_length_ms = len(audio_segment_info)
+        except Exception as e:
+            original_audio_length_ms = 0
+            
+        # --- Run Diarization Pipeline
+        
+        # Run on full audio file
+        diarization_segments = await diarize.run(temp_file_path)
+        
+        if diarization_segments is None:
+            raise HTTPException(
+                status_code=500,
+                detail="Diarization Failed: No speech Detected"
+            )
+            
+        # --- Run Transcription Pipeline
+        transcription_results = await transcribe.run_transcription_pipeline(temp_file_path)
+        
+        if transcription_results is None:
+            raise HTTPException(
+                status_code=500,
+                detail="Transcription Failed: Audio Processing Error"
+            )
+            
+        # --- Merge Results
+        merged_segments = merge_transcription_and_diarization(
+            transcription_results,
+            diarization_segments,
+            original_audio_length_ms
+        )
+        
+        return {"segments": merged_segments}
+    
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Internal Server Error: {e}"
+        )
+        
+    finally:
+        # --- Clean up temp files
+        if temp_file_path and os.path.exists(temp_file_path):
+            background_tasks.add_task(os.remove, temp_file_path)
+        else:
+            print("No files to clean")
 
 
 @app.post("/summarize")
 async def summarize_audio(data: models.AudioRequest, auth: bool = Depends(require_auth)):
+    """ 
+    Recives a summarization request, runs the summarization pipeline, and returns the summary.
+    """
+
     try:
         result = await summarize.run(data.audio_url)
         return {"summary": result}
