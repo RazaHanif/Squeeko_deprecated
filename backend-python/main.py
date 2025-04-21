@@ -110,7 +110,8 @@ def merge_transcription_and_diarization(
                     "end": round(segment_end_abs_sec, 3),
                     "text": segment.get("text", "")
                 })
-        
+        elif isinstance(chunk_result, dict) and "error" in chunk_result:
+            error_start_abs_sec = chunk_index
     
 
 # --- Routes
