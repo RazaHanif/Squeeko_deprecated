@@ -61,10 +61,10 @@ def prepare_audio(audio_url: str) -> list[AudioSegment] | None:
         # NO LONGER TRIMMING INTERNAL AUDIO
         # trimmed_audio = trim_silence.apply(audio_wav)
         
-        if trimmed_audio is None or len(trimmed_audio) == 0:
-            return []
+        # if trimmed_audio is None or len(trimmed_audio) == 0:
+        #     return []
         
-        chunks = chunk_audio.split(trimmed_audio, chunk_length_ms=30000)
+        chunks = chunk_audio.split(audio_wav, chunk_length_ms=os.getenv("CHUNK_MS"))
         
         if not chunks:
             return []
