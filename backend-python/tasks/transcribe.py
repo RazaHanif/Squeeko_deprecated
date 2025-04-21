@@ -64,7 +64,7 @@ def prepare_audio(audio_url: str) -> list[AudioSegment] | None:
         # if trimmed_audio is None or len(trimmed_audio) == 0:
         #     return []
         
-        chunks = chunk_audio.split(audio_wav, chunk_length_ms=int(os.getenv("CHUNK_MS")))
+        chunks = chunk_audio.split(audio_wav)
         
         if not chunks:
             return []
