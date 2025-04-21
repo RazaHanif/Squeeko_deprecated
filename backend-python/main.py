@@ -84,7 +84,7 @@ def merge_transcription_and_diarization(
     diarization_index = 0 
     
     # Get Chunk time from env
-    chunk_length_ms = os.getenv("CHUNK_MS")
+    chunk_length_ms = int(os.getenv("CHUNK_MS"))
 
     if not transcription_results:
         # Returning empty list means no merged segments.
