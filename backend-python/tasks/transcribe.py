@@ -64,6 +64,7 @@ def prepare_audio(audio_url: str) -> list[AudioSegment] | None:
         if audio_wav is None:
             return None
         
+        # NO LONGER TRIMMING INTERNAL AUDIO
         trimmed_audio = trim_silence.apply(audio_wav)
         
         if trimmed_audio is None or len(trimmed_audio) == 0:

@@ -54,7 +54,7 @@ async def require_auth(request: Request):
         raise HTTPException(status_code=401, detail="Unauthorized")
     return True
 
-# --- Helper
+# --- Helper function
 def merge_transcription_and_diarization(
     transcription_results: list[dict], # List of chunk results from transcribe.run_transcription_pipeline
     diarization_segments: list[dict], # List of speaker segments from diarize.run
@@ -66,52 +66,113 @@ def merge_transcription_and_diarization(
 
     Args:
         transcription_results (list[dict]): Results from transcribe.run_transcription_pipeline.
+                                           Expected format is a list where each item is
+                                           either a Whisper chunk result dict (with 'segments' key)
+                                           or an error dict (with 'error' key).
         diarization_segments (list[dict]): Results from diarize.run.
+                                           Expected format is a list of dicts with 'speaker', 'start', 'end' (seconds).
         original_audio_length_ms (int): The length of the original audio in milliseconds.
 
     Returns:
         list[dict]: A list of merged segments, each including speaker, absolute start/end times, and text.
-                    Includes error markers for failed chunks.
+                    Includes error markers for failed chunks. Returns an empty list
+                    if transcription_results is empty or merging fails.
     """
+ 
+    # print("Starting merging transcription and diarization results...")
     merged_segments = []
-    diarization_index = 0
+    diarization_index = 0 
     
-    # Assume fixed chunk length (maybe gloablize with CHUNK_LENGTH)
-    chunk_length_ms = 30000
-    
+    # Get Chunk time from env
+    chunk_length_ms = os.getenv("CHUNK_MS")
+
+    if not transcription_results:
+        # Returning empty list means no merged segments.
+        return []
+
+
     for chunk_index, chunk_result in enumerate(transcription_results):
-        if isinstance(chunk_result, dict) and "segments" in chunk_result:
-            # Calc absolute start time of the current chunk in seconds
-            chunk_start_time_abs_sec = chunk_index * (chunk_length_ms / 1000.00)
-            
-            for segment in chunk_result["segments"]:
-                segment_start_abs_sec = chunk_start_time_abs_sec + segment.get("start", 0)
-                segment_end_abs_sec = chunk_start_time_abs_sec + segment.get("end", 0)
-                
-                # Find corresonding speaker for this segment
+        
+        # Process successful transcription chunk results
+        if isinstance(chunk_result, dict) and "segments" in chunk_result and isinstance(chunk_result["segments"], list):
+
+            chunk_start_time_abs_sec = chunk_index * (chunk_length_ms / 1000.0)
+
+            # Iterate through transcription segments within this chunk
+            for segment in chunk_result.get("segments", []):
+                if not isinstance(segment, dict) or "start" not in segment or "end" not in segment or "text" not in segment:
+                    # Skip to next segment
+                    continue 
+
+                # Calculate the absolute start and end times for the transcription segment
+                segment_start_abs_sec = chunk_start_time_abs_sec + segment.get("start", 0.0)
+                segment_end_abs_sec = chunk_start_time_abs_sec + segment.get("end", 0.0)
+
+                # --- Find the corresponding speaker for this transcription segment ---
                 current_speaker = "Unknown"
-                
+
                 # Advance the diarization_index to efficiently find potentially overlapping segments
-                while diarization_index < len(diarization_segments) -1 and diarization_segments[diarization_index + 1].get("start", float('inf')) <= segment_start_abs_sec:
+                # We look ahead as long as the *next* diarization segment starts *before or exactly at*
+                # the *start* of our current transcription segment.
+                while diarization_index < len(diarization_segments) - 1 and \
+                      diarization_segments[diarization_index + 1].get("start", float('inf')) <= segment_start_abs_sec:
                     diarization_index += 1
-                    
+
                 # Now, check the current diarization segment (at diarization_index) for overlap
                 if diarization_index < len(diarization_segments):
                     dia_seg = diarization_segments[diarization_index]
                     dia_start = dia_seg.get("start", float('-inf'))
                     dia_end = dia_seg.get("end", float('inf'))
-                    
+
+                    # Check if transcription segment overlaps with or is contained within the current diarization segment
+                    # A simple overlap check: max(seg_start, dia_start) < min(seg_end, dia_end)
                     if max(segment_start_abs_sec, dia_start) < min(segment_end_abs_sec, dia_end):
-                        current_speaker = dia_seg.get("speaker", "Unknown")
-                        
+                         current_speaker = dia_seg.get("speaker", "Unknown")
+
+
+                # --- Add the merged segment to the results
                 merged_segments.append({
                     "speaker": current_speaker,
                     "start": round(segment_start_abs_sec, 3),
                     "end": round(segment_end_abs_sec, 3),
                     "text": segment.get("text", "")
                 })
+
         elif isinstance(chunk_result, dict) and "error" in chunk_result:
-            error_start_abs_sec = chunk_index
+
+             # Handle error dictionaries returned by run_transcription_pipeline
+             print(f"Merging: Found error result for chunk {chunk_index}: {chunk_result.get('error', 'Unknown error')}")
+             error_start_abs_sec = chunk_index * (chunk_length_ms / 1000.0)
+             error_end_abs_sec = min(error_start_abs_sec + (chunk_length_ms / 1000.0), original_audio_length_ms / 1000.0)
+
+             merged_segments.append({
+                 "speaker": "Error",
+                 "start": round(error_start_abs_sec, 3),
+                 "end": round(error_end_abs_sec, 3),
+                 "text": chunk_result.get("error", "Transcription Error"),
+                 "error": chunk_result.get("error", "Transcription Error") 
+             })
+        else:
+
+            # Handle any other unexpected item format in the transcription_results list
+            unknown_start_abs_sec = chunk_index * (chunk_length_ms / 1000.0)
+            unknown_end_abs_sec = min(unknown_start_abs_sec + (chunk_length_ms / 1000.0), original_audio_length_ms / 1000.0)
+            merged_segments.append({
+                "speaker": "Unknown",
+                "start": round(unknown_start_abs_sec, 3),
+                "end": round(unknown_end_abs_sec, 3),
+                "text": "[[Unexpected result format]]",
+                "error": "Unexpected result format"
+            })
+
+
+    print(f"Merging complete. Created {len(merged_segments)} merged segments.")
+
+    # Just to be safe, sort all segments based on start time
+    merged_segments.sort(key=lambda x: x.get("start", float('inf')))
+
+    return merged_segments
+
     
 
 # --- Routes
@@ -204,17 +265,33 @@ async def transcribe_audio(
             background_tasks.add_task(os.remove, temp_file_path)
         else:
             print("No files to cleanup")
-            
+    
+# -- NEW Combined Transcribe & Diarize Endpoint
+# * Might replace prevous transcribe route * 
+@app.post("/transcribe_and_diarize")
+async def transcribe_and_diarize_audio(
+    audio_file: UplaodFile = File(...),
+    auth: bool = Depends(require_auth),
+    background_tasks = BackgroundTasks
+):
+    """ 
+    Receives an audio file upload, runs both transcription & diarization pipeline
+    then merges the result and returns the speaker-attributed transcript segments
+    
+    Handles temp file storage & cleanup
+    """
+    
+    # Check if both required models are loaded at startup
+    if transcribe.whisper_model_instance is None or diarize.pyannote_pipeline_instance is None:
+        raise HTTPException(
+            status_code=503,
+            detail="Transcription or Diarization service not ready"
+        )
+        
+    temp_file_path = None
+    original_audio_length_ms = 0
 
 
-@app.post("/diarize")
-async def diarize_audio(data: models.AudioRequest, auth: bool = Depends(require_auth)):
-    try:
-        result = await diarize.run(data.audio_url)
-        return {"speaker_segments": result}
-    except Exception as e:
-        print(f"An error occurred during diarization: {e}")
-        raise HTTPException(status_code=500, detail="Diarization failed.")
 
 @app.post("/summarize")
 async def summarize_audio(data: models.AudioRequest, auth: bool = Depends(require_auth)):

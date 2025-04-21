@@ -65,6 +65,7 @@ def apply(
         return AudioSegment.empty()
     
     # Trim long pauses in the audio (OPTIONAL)
+    """ 
     if trim_internal:
         
         # split_on_silence splits the audio into chunjs based on silence longer than min_silence_len_internal
@@ -91,4 +92,7 @@ def apply(
         print(f"Internally Trimmed audio length: {len(processed_audio)} ms") # ONLY FOR TESTING
         return processed_audio
     else:
-        return trimmed_audio
+        return trimmed_audio 
+    """
+    
+    return trimmed_audio
