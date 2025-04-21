@@ -106,8 +106,11 @@ def merge_transcription_and_diarization(
                         
                 merged_segments.append({
                     "speaker": current_speaker,
-                    "start": round(segment_start_abs_sec, 3)
+                    "start": round(segment_start_abs_sec, 3),
+                    "end": round(segment_end_abs_sec, 3),
+                    "text": segment.get("text", "")
                 })
+        
     
 
 # --- Routes
