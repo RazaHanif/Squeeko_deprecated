@@ -3,7 +3,6 @@ from fastapi import UploadFile, File
 
 import tempfile
 import os
-import shutil
 from tasks import transcribe, diarize, summarize
 
 # Idk if i need these models?
@@ -84,7 +83,7 @@ def merge_transcription_and_diarization(
     diarization_index = 0 
     
     # Get Chunk time from env
-    chunk_length_ms = int(os.getenv("CHUNK_MS"))
+    chunk_length_ms = 30000
 
     if not transcription_results:
         # Returning empty list means no merged segments.
