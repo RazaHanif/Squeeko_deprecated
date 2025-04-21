@@ -36,12 +36,6 @@ def load_whisper_model():
     if whisper_model_instance is None:
         try:
             whisper_model_instance = whisper.load_model(WHISPER_MODEL_NAME, device=DEVICE)
-            if DEVICE == "cpu" and USE_FP16:
-                USE_FP16 = False
-                whisper_model_instance.to(torch.float32)
-            elif DEVICE == "cuda" and not USE_FP16:
-                whisper_model_instance.to(torch.float32)
-                 
         except Exception as e:
             print(f"Error loading Whisper model '{WHISPER_MODEL_NAME}' on device '{DEVICE}': {e}")
             whisper_model_instance = None
@@ -65,7 +59,7 @@ def prepare_audio(audio_url: str) -> list[AudioSegment] | None:
             return None
         
         # NO LONGER TRIMMING INTERNAL AUDIO
-        trimmed_audio = trim_silence.apply(audio_wav)
+        # trimmed_audio = trim_silence.apply(audio_wav)
         
         if trimmed_audio is None or len(trimmed_audio) == 0:
             return []
