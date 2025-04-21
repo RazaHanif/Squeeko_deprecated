@@ -89,7 +89,7 @@ def merge_transcription_and_diarization(
                 segment_end_abs_sec = chunk_start_time_abs_sec + segment.get("end", 0)
                 
                 # Find corresonding speaker for this segment
-                current_speaker - "Unknown"
+                current_speaker = "Unknown"
                 
                 # Advance the diarization_index to efficiently find potentially overlapping segments
                 while diarization_index < len(diarization_segments) -1 and diarization_segments[diarization_index + 1].get("start", float('inf')) <= segment_start_abs_sec:
