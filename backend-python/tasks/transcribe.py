@@ -161,16 +161,5 @@ async def run_transcription_pipeline(audio_url: str) -> list[dict] | None:
     # Run tasks concurrently using asyncio.gather
     results = await asyncio.gather(*transcription_tasks, return_exceptions=True)
     
-    
-    # Process results (Handle errors, combine)
-    
-    final_transcripts = []
-    for i, result in enumerate(results):
-        if isinstance(result, Exception):                       # Catches exceptions from transcrive_chunkasync
-            final_transcripts.append(result)
-        elif isinstance(result, dict) and "text" in result:     # Succesfully transcribed chunk
-            final_transcripts.append(result)
-        else:                                                   # Unexpected result format
-            final_transcripts.append({"text": f"[[Unexpected result format for chunk {i}]]", "segments": [], "language": "unknown"})
-
-    return final_transcripts
+    # Return list
+    return results
