@@ -106,3 +106,7 @@ def format_transcript_for_llm(merged_segments: list[dict]) -> str:
         else:
             formatted_text += f"[{start_timestamp} - {end_timestamp}] Error Processing: {text}\n"
             
+    # Limit input length for model context window
+    
+    # *** 32K context window for Mistral 7B v0.2
+    
