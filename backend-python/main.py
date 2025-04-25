@@ -202,6 +202,7 @@ def root():
     """
     return {"message": "Squeeko backend is live!"}
 
+
 @app.post("/transcribe")
 async def transcribe_audio(
     audio_file: UploadFile = File(...),
@@ -290,6 +291,7 @@ async def transcribe_audio(
             background_tasks.add_task(os.remove, temp_file_path)
         else:
             print("No files to cleanup")
+    
     
 @app.post("/transcribe_and_diarize")
 async def transcribe_and_diarize_audio(
@@ -391,47 +393,49 @@ async def transcribe_and_diarize_audio(
             background_tasks.add_task(os.remove, temp_file_path)
         else:
             print("No files to clean")
-
+            
+            
 @app.post("/summarize")
 async def summarize_audio(
-    data: UploadFile = File(...),
+    data: models.SummaryRequest,
     auth: bool = Depends(require_auth)
 ):
     """
-    Receives a summarization request (likely text input via SummaryRequest model),
+    Receives the merged transcription/diarization segments from the client,
     runs the summarization pipeline, and returns the summary.
+    This route is typically for a paid tier with unlimited summarization access.
     """
+    
     if summarize.llm_model_instance is None or summarize.llm_tokenizer_instance is None:
          print("Error: Summarization service not ready (model not loaded).")
-         raise HTTPException(status_code=503, detail="Summarization service not ready.")
+         raise HTTPException(status_code=503, detail="Summarization service is not ready.")
+    
+
+    merged_segments_from_client = data.segments
+
+    if not merged_segments_from_client:
+        print("No merged segments provided by the client for summarization.")
+        return {
+             "main_topic": "No input segments",
+             "summary": "No transcription or diarization segments were provided for summarization.",
+             "key_points": [],
+             "tasks_to_complete": []
+        }
 
     try:
-        print(f"Received summarization request: {data}")
-        summary_result = await summarize.run(data)
-
+        print("Starting Summarization Pipeline")
+        summary_result = await summarize.run(merged_segments_from_client)
+        print("Finished Summarization Pipeline")
+        
         if summary_result is None:
-             print("Summarization pipeline failed.")
-             raise HTTPException(status_code=500, detail="Summarization pipeline failed.")
-
+             print("Summarization pipeline returned None unexpectedly.")
+             raise HTTPException(status_code=500, detail="Summarization pipeline failed unexpectedly.")
 
         return {"summary": summary_result}
 
+
     except HTTPException as e:
-        # Re-raise specific HTTP errors
         raise e
     except Exception as e:
-        # Catch any unexpected errors during summarization
-        # Use logging instead of print in production, include traceback
         print(f"An unexpected error occurred during summarization: {e}")
-        # In production, log the full traceback here: logging.exception(...)
         raise HTTPException(status_code=500, detail="An internal server error occurred during summarization.")
-    """ 
-    Recives a summarization request, runs the summarization pipeline, and returns the summary.
-    """
-
-    try:
-        result = await summarize.run(data.audio_url)
-        return {"summary": result}
-    except Exception as e:
-        print(f"An error occurred during summarization: {e}")
-        raise HTTPException(status_code=500, detail="Summarization failed.")
