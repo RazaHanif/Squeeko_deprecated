@@ -307,5 +307,10 @@ async def run(merged_segments: list[dict]) -> dict | None:
     # Step 3: Run LLM Async
     llm_generated_text = await generate_summary_async(llm_prompt)
     
-    
+    if llm_generated_text.startswith("Error during LLM Summary"):
+        print(f"LLM Generation Failed: {llm_generated_text}")
+        return {
+            "error": llm_generated_text,
+            
+        }
     
