@@ -117,6 +117,9 @@ def format_transcript_for_llm(merged_segments: list[dict]) -> str:
     return formatted_text
 
 # --- Helper Function
+# 
+
+# --- Helper Function
 # Define LLM Prompt
 def get_summarization_prompt(transcript_text: str) -> str:
     """ 
