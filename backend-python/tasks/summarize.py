@@ -396,5 +396,5 @@ async def run(merged_segments: list[dict]) -> dict | None:
             
             chunk_prompt = get_llm_prompt("chunk_summary", chunk_text)
             
-            
+            chunk_summary_text = await generate_summary_async(chunk_prompt, max_new_tokens_chunk_summary)
         
