@@ -62,9 +62,9 @@ async def require_auth(request: Request):
 
 # --- Helper function
 def merge_transcription_and_diarization(
-    transcription_results: list[dict], # List of chunk results from transcribe.run_transcription_pipeline
-    diarization_segments: list[dict], # List of speaker segments from diarize.run
-    original_audio_length_ms: int # Needed to calculate absolute chunk times
+    transcription_results: list[dict],
+    diarization_segments: list[dict],
+    original_audio_length_ms: int
 ) -> list[dict]:
     """
     Merges transcription results (with segment timestamps relative to chunks)
