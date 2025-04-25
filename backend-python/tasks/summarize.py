@@ -191,7 +191,15 @@ def get_llm_prompt(prompt_type: str, content: str) -> str:
 
             Ensure you include all sections even if some are empty (e.g., no tasks mentioned in any summary).
         """
-        
+    
+    elif prompt_type == "chunk_summary":
+        instuction = f"""
+            Summarize the following section of a meeting transcript concisely:
+            ---
+            {content}
+            ---
+            Concise Summary:
+        """
     
     
     prompt = f""" 
