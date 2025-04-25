@@ -374,8 +374,6 @@ async def transcribe_and_diarize_audio(
         )
         
         print(f"Combined processing: Created {len(merged_segments)} merged segments.")
-
-        # --- Run Su
         
         return {"segments": merged_segments}
     
