@@ -78,3 +78,14 @@ def load_llm_model():
             llm_tokenizer_instance = None
             
 # --- Helper Function
+# Format Transcript for LLM
+def format_transcript_for_llm(merged_segments: list[dict]) -> str:
+    """ 
+    Formats the list of merged segments into a single text string for the LLM
+    Includes timestamps & speaker labels
+    """
+    
+    if not merged_segments:
+        return "## Empty Transcript ##"
+    
+    
