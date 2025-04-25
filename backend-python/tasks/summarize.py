@@ -399,9 +399,6 @@ async def run(merged_segments: list[dict]) -> dict | None:
     
     SINGLE_PASS_CHUNK_SIZE = 90000
     
-    CHUNK_SIZE = 80000
-    CHUNK_OVERLAP = 5000
-    
     if len(transcript_text) <= SINGLE_PASS_CHUNK_SIZE:
     
         # Step 2: Define the prompt
