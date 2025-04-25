@@ -311,6 +311,13 @@ async def run(merged_segments: list[dict]) -> dict | None:
         print(f"LLM Generation Failed: {llm_generated_text}")
         return {
             "error": llm_generated_text,
-            
+            "main_topic": "Summarization Failed",
+            "summary": llm_generated_text,
+            "key_points": [],
+            "tasks_to_complete": []
         }
+        
+    # Step 4: Parse LLM Output
+    # Parsing can fail if LLM doesnt follow format
+    
     
