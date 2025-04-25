@@ -163,4 +163,18 @@ async def generate_summary_async(prompt: str) -> str:
         print("ErrorL LLM Model or Tokenizer not loaded")
         return "Error: LLM Model or Tokenizer not loaded"
     
+    loop = asyncio.get_running_loop()
+    
+    # Define Generation Params
+    generation_params = {
+        "max_new_tokens": 500, # Maximum number of tokens to generate (summary length)
+        "do_sample": True,     # Use sampling (more creative) vs. greedy decoding (more deterministic)
+        "temperature": 0.7,    # Controls randomness (lower = more focused, higher = more creative) - use with do_sample=True
+        "top_p": 0.9,          # Nucleus sampling threshold - use with do_sample=True
+        "top_k": 50,           # Top-k sampling threshold - use with do_sample=True
+        "attention_mask": None, # Handled by tokenizer/pipeline typically
+        "pad_token_id": llm_tokenizer_instance.pad_token_id or llm_tokenizer_instance.eos_token_id, # Set padding token
+        "eos_token_id": llm_tokenizer_instance.eos_token_id, # Set end of sequence token
+        # Add other parameters as needed (e.g., num_beams for beam search, no_repeat_ngram_size)
+    }
     
