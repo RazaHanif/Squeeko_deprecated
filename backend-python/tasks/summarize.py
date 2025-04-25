@@ -33,4 +33,48 @@ def load_llm_model():
     
     if llm_model_instance is None or llm_tokenizer_instance is None:
         print(f"Loading LLM model '{LLM_MODEL_NAME}' on device '{DEVICE}'")
-        
+
+        try:
+            # --- Quantization Config
+            # Configure 4-bit quantization for reduced VRAM/Mem usage
+            
+            if DEVICE == "cuda":
+                bnb_config = BitsAndBytesConfig(
+                    load_in_4bit=True,
+                    bnb_4bit_quant_type="nf4",
+                    bnb_4bit_use_double_quant=True,
+                    # bnb_4bit_compute_dtype=torch.bfloat16 -- use only if server has NVIDIA GPU
+                )
+            else:
+                bnb_config = None
+                
+            # --- Load Tokenizer
+            llm_tokenizer_instance = AutoTokenizer.from_pretrained(LLM_MODEL_NAME)
+            
+            if llm_tokenizer_instance.pad_token is None:
+                llm_tokenizer_instance.pad_token = llm_tokenizer_instance.eos_token
+                
+            # --- Load Model
+            if bnb_config:
+                llm_model_instance = AutoModelForCasualLM.from_pretrained(
+                    LLM_MODEL_NAME,
+                    quantization_config=bnb_config,
+                    device_map="auto"
+                )
+            else:
+                llm_model_instance = AutoModelForCasualLM.from_pretrained(
+                    LLM_MODEL_NAME,
+                    device_map="cpu" if DEVICE == "cpu" else "cuda"
+                )
+                
+            llm_model_instance.eval()
+            
+            print(f"LLM model '{LLM_MODEL_NAME}' loaded successfully")
+            
+        except Exception as e:
+            print(f"Fatal Error: Failed to load LLM '{LLM_MODEL_NAME}': {e}")
+            
+            llm_model_instance = None
+            llm_tokenizer_instance = None
+            
+# --- Helper Function
