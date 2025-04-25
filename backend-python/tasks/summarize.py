@@ -161,10 +161,12 @@ def chunk_text_with_overlap(text: str, chunk_size: int = 80000, overlap_size: in
 
 # --- Helper Function
 # Define LLM Prompt
-def get_llm_prompt(transcript_text: str) -> str:
+def get_llm_prompt(prompt_type: str, content: str) -> str:
     """ 
-    Defines the prompt to instruct the LLM for summarization & structured output
+    Defines the prompt based on the type of summarization needed
     """
+    
+    
     
     prompt = f""" 
         You are an AI assitant tasked with analyzing a transcript, identifying the main topic, providing a concise summary, extracting key discussion points and listing any action itmes or tasks mentioned.
