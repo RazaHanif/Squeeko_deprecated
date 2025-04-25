@@ -394,5 +394,5 @@ async def run(merged_segments: list[dict]) -> dict | None:
         
         for i, chunk_text in enumerate(text_chunks):
             
-            chunk_prompt = get_llm_prompt()
+            chunk_prompt = get_summarization_prompt()
         
