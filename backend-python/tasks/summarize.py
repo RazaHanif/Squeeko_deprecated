@@ -100,7 +100,7 @@ def format_transcript_for_llm(merged_segments: list[dict]) -> str:
         # Format timestamp (HH:MM:SS)
         start_timestamp = time.strftime('%H:%M:%S' , time.gmtime(start_time))
         end_timestamp = time.strftime('%H:%M:%S' , time.gmtime(end_time))
-        
+
         if "error" in segment:
             formatted_text += f"[{start_timestamp} - {end_timestamp}] Error Processing: {text}\n"
         else:
