@@ -319,5 +319,18 @@ async def run(merged_segments: list[dict]) -> dict | None:
         
     # Step 4: Parse LLM Output
     # Parsing can fail if LLM doesnt follow format
-    
+    try: 
+        structured_summary = parse_llm_output(llm_generated_text)
+        return structured_summary
+    except Exception as e:
+        print(f"Error parsing LLM output: {e}")
+        print(f"LLM Output Text: \n---\n{llm_generated_text}\n---")
+        return {
+            "error": f"Failed to Parse LLM Ouput: {e}",
+            "main_topic": "Parsing Failed",
+            "summary": "Failed to parse the summary from the LLM output",
+            "key_points": [],
+            "tasks_to_complete": [],
+            "raw_llm_output": llm_generated_text
+        }
     
