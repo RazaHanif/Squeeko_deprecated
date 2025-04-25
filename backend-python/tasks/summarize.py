@@ -102,9 +102,9 @@ def format_transcript_for_llm(merged_segments: list[dict]) -> str:
         end_timestamp = time.strftime('%H:%M:%S' , time.gmtime(end_time))
         
         if "error" in segment:
-            formatted_text += f"[{start_timestamp} - {end_timestamp}] {speaker}: {text}\n"
-        else:
             formatted_text += f"[{start_timestamp} - {end_timestamp}] Error Processing: {text}\n"
+        else:
+            formatted_text += f"[{start_timestamp} - {end_timestamp}] {speaker}: {text}\n"
             
     return formatted_text
 
