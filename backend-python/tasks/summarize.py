@@ -267,3 +267,20 @@ def parse_llm_output(llm_output_text: str) -> dict:
     print("...End LLM output parse")
     return parsed_data
 
+# --- Main Summarization Pipeline
+async def run(merged_segments: list[dict]) -> dict | None:
+    """ 
+    Runs the summarization pipeline: 
+        Formats Transcript
+        Prompts LLM
+        Parses Output
+        
+    Args:
+        merged_segments (list[dict]): The list of merged transcription and diarization segments.
+
+    Returns:
+        dict | None: A dictionary containing the structured summary (main_topic, summary, key_points, tasks_to_complete), or None on failure.
+                     If merging resulted in no segments, returns a specific structure indicating that.
+    """
+    
+    global llm_model_instance, llm_tokenizer_instance
