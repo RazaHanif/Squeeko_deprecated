@@ -236,12 +236,18 @@ async def transcribe_audio(
             while content :=  await audio_file.read(1024 * 1024):
                 tmp_upload_file.write(content)
         
+        print(f"Saved uploaded file to temp location: {temp_file_path}")
+        
         # --- Run Pipeline
+        print("Starting transcription pipeline")
         transcription_results = await transcribe.run_transcription_pipeline(temp_file_path)
+        print("Finished transcription pipeline")
+        
         
         
         # --- Handle Pipeline results
         if transcription_results is None:
+            print("Audio Prep Failed")
             raise HTTPException(
                 status_code=500,
                 detail="Audio Processing Failed!"
@@ -249,6 +255,7 @@ async def transcribe_audio(
         
         if not transcription_results:
             # Pipeline returned empty list
+            print("Pipeline resulted in no audio chunks")
             return {
                 "message": "No audio contetnt detected, or processing resulted in no chunks",
                 "transcript": ""
