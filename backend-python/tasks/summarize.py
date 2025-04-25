@@ -438,4 +438,17 @@ async def run(merged_segments: list[dict]) -> dict | None:
             }
             
         # Step 5: Parse LLM Output
-        
+        try:
+            structured_summary_final = parse_llm_output(llm_generated_text_final)
+            print("Chunked summarization process Succesful")
+            return structured_summary_final
+        except Exception as e:
+            print(f"Error parsing LLM output from final summary pass: {e}")
+            return {
+                "error": f"Failed to parse final LLM output: {e}",
+                "main_topic": "Parsing Failed",
+                "summary": "Failed to parse the final summary from the LLM output.",
+                "key_points": [],
+                "tasks_to_complete": [],
+                "raw_llm_output": llm_generated_text_final
+            }
