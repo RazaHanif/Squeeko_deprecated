@@ -396,7 +396,7 @@ async def run(merged_segments: list[dict]) -> dict | None:
         llm_prompt = get_llm_prompt("single_full_summary_structured", transcript_text)
         
         # Step 3: Run LLM Async
-        llm_generated_text = await generate_summary_async(llm_prompt, )
+        llm_generated_text = await generate_summary_async(llm_prompt, 500)
         
         if llm_generated_text.startswith("Error during LLM Summary"):
             print(f"LLM Generation Failed: {llm_generated_text}")
@@ -439,7 +439,7 @@ async def run(merged_segments: list[dict]) -> dict | None:
             
             chunk_prompt = get_llm_prompt("chunk_summary", chunk_text)
             
-            chunk_summary_text = await generate_summary_async(chunk_prompt)
+            chunk_summary_text = await generate_summary_async(chunk_prompt, 200)
             
             if chunk_summary_text.startswith("Error during") or not chunk_summary_text.strip():
                 print("Error or empty summary...Skipping")
@@ -466,7 +466,7 @@ async def run(merged_segments: list[dict]) -> dict | None:
         final_summary_prompt = get_llm_prompt("final_structured_summary", combined_chunk_summaries_text)
         
         
-        llm_generated_text_final = await generate_summary_async(final_summary_prompt)
+        llm_generated_text_final = await generate_summary_async(final_summary_prompt, 2000)
         
         if llm_generated_text_final.startswith("Error during"):
             print(f"LLM Generation Failed: {llm_generated_text_final}")
