@@ -4,6 +4,7 @@ import torch
 import time
 import json
 import re
+from typing import List, Dict, Any
 
 
 from transformers import AutoModelForCasualLM, AutoTokenizer, BitsAndBytesConfig
@@ -117,7 +118,41 @@ def format_transcript_for_llm(merged_segments: list[dict]) -> str:
     return formatted_text
 
 # --- Helper Function
-# 
+# Chunk text with overlap
+def chunk_text_with_overlap(text: str, chunk_size: int, overlap_size: int) -> List[str]:
+    """
+    Splits a large text string into smaller chunks with overlap (character-based).
+
+    Args:
+        text (str): The input text string.
+        chunk_size (int): The target size of each chunk in characters.
+        overlap_size (int): The size of the overlap between consecutive chunks in characters.
+
+    Returns:
+        List[str]: A list of text chunks.
+    """
+    if chunk_size <= overlap_size < 0 or overlap_size >= chunk_size:
+        print(f"Error: Invalid Chunk Params.")
+        return [text]
+    
+    chunks = []
+    start = 0
+    text_len = len(text)
+    
+    while start < text_len:
+        end = start + chunk_size
+        chunk = text[start:min(end, text_len)]
+        chunks.append(chunk)
+        
+        # Calc of next chunk, with overlapping
+        start += chunk_size - overlap_size
+        
+        # Avoid goin backwards if overlap is very large
+        if start < len(chunks[-1]) - overlap_size and len(chunks) > 1:
+            break
+        
+    # 
+
 
 # --- Helper Function
 # Define LLM Prompt
