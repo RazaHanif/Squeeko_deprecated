@@ -57,13 +57,13 @@ def load_llm_model():
                 
             # --- Load Model
             if bnb_config:
-                llm_model_instance = AutoModelForCasualLM.from_pretrained(
+                llm_model_instance = AutoModelForCausalLM.from_pretrained(
                     LLM_MODEL_NAME,
                     quantization_config=bnb_config,
                     device_map="auto"
                 )
             else:
-                llm_model_instance = AutoModelForCasualLM.from_pretrained(
+                llm_model_instance = AutoModelForCausalLM.from_pretrained(
                     LLM_MODEL_NAME,
                     device_map="cpu" if DEVICE == "cpu" else "cuda"
                 )
