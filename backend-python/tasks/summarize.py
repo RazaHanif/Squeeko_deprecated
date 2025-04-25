@@ -7,8 +7,7 @@ import re
 from typing import List, Dict, Any
 
 
-from transformers import AutoModelForCasualLM, AutoTokenizer, BitsAndBytesConfig
-from llama_cpp import Llama
+from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 
 # Getting token from env
 from dotenv import load_dotenv
