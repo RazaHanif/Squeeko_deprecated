@@ -386,12 +386,15 @@ async def run(merged_segments: list[dict]) -> dict | None:
     
     else: 
         # Chunked Summarization
+        
+        # Step 1: Chunk text
         print("Splitting text into chunks...")
         text_chunks = chunk_text_with_overlap(transcript_text)
         
         chunk_summaries_list = []
         max_new_tokens_chunk_summary = 200
         
+        # Step 2: Summarize each chunk
         for i, chunk_text in enumerate(text_chunks):
             
             chunk_prompt = get_llm_prompt("chunk_summary", chunk_text)
@@ -404,4 +407,23 @@ async def run(merged_segments: list[dict]) -> dict | None:
             
             chunk_summaries_list.append(f"Summary of Section {i+1}:\n{chunk_summary_text.strip()}")
             
+        if not chunk_summaries_list:
+            print("No chunk summaries generated")
+            return {
+                 "error": "No successful chunk summaries generated.",
+                 "main_topic": "Summarization Failed",
+                 "summary": "The chunked summarization process failed to produce any valid section summaries.",
+                 "key_points": [],
+                 "tasks_to_complete": []
+            }
+            
+        # Step 3: Combine the chunk summaries into a single text
+        combined_chunk_summaries_text = "\n\n---\n\n".join(chunk_summaries_list)
+        print(f"Combined chunk summaries length: {len(combined_chunk_summaries_text)} characters.")
         
+        # Step 4: Run LLM to combine Summaries
+        print("Starting final summarization...")
+        final_summary_prompt = get_llm_prompt("final_structured_summary", combined_chunk_summaries_text)
+        
+        
+        max_new_tokens_chunk_summary
