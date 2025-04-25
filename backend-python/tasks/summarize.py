@@ -65,7 +65,7 @@ def load_llm_model():
             else:
                 llm_model_instance = AutoModelForCausalLM.from_pretrained(
                     LLM_MODEL_NAME,
-                    device_map="cpu" if DEVICE == "cpu" else "cuda"
+                    device_map="auto"
                 )
                 
             llm_model_instance.eval()
@@ -92,7 +92,7 @@ def format_transcript_for_llm(merged_segments: list[dict]) -> str:
     formatted_text = "Meeting Transcript:\n\n"
     for segment in merged_segments:
         # Check segment has expected keys, use .get for safety
-        speaker = segment.get("speaker", "Unkown Speaker")
+        speaker = segment.get("speaker", "Unknown Speaker")
         start_time = segment.get("start", 0.0)
         end_time = segment.get("end", 0.0)
         text = segment.get("text", "").strip()
