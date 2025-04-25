@@ -137,6 +137,30 @@ def get_summarization_prompt(transcript_text: str) -> str:
         A concise, overarching topic of the discussion.
         
         [SUMMARY]
-        a brief summary of the entire coverstaio
-    
+        A brief summary of the entire coverstaion, highlighting the most important themes and outcomes.
+        
+        [KEY POINTS]
+        - A bulleted list of the main discussion points, decisions made, or significant information shared.
+        
+        [TASKS TO COMPLETE]
+        - A bulleted list of any action items, tasks, or next steps mentioned during the meeting. For each task, if a person responsible is mentioned or implied, include thier name.
+        
+        Ensure you include all sections even if some are empty (e.g., no tasks mentioned).
     """
+    
+    return prompt
+
+# --- Helper
+# Run LLM Inference Async
+async def generate_summary_async(prompt: str) -> str:
+    """ 
+    Runs the LLM text generation call in a thread pool    
+    """
+    
+    global llm_model_instance, llm_tokenizer_instance
+    
+    if llm_model_instance is None or llm_tokenizer_instance is None:
+        print("ErrorL LLM Model or Tokenizer not loaded")
+        return "Error: LLM Model or Tokenizer not loaded"
+    
+    
