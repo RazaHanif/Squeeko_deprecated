@@ -151,7 +151,12 @@ def chunk_text_with_overlap(text: str, chunk_size: int, overlap_size: int) -> Li
         if start < len(chunks[-1]) - overlap_size and len(chunks) > 1:
             break
         
-    # 
+    # Ensure loop doesnt create empty last chunk
+    if chunks and not chunks[-1]:
+        chunks.pop()
+        
+    print(f"Split text into {len(chunks)} chunks (size={chunk_size}, overlap={overlap_size}).")
+    return chunks
 
 
 # --- Helper Function
