@@ -9,6 +9,7 @@ from tasks import transcribe, diarize, summarize
 import models
 import utils.auth
 
+from pydub import AudioSegment
 
 # --- Lifespan event for applicaiton startup/shutdown
 from contextlib import asynccontextmanager
