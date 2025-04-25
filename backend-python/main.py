@@ -85,7 +85,7 @@ def merge_transcription_and_diarization(
                     if transcription_results is empty or merging fails.
     """
  
-    # print("Starting merging transcription and diarization results...")
+    print("Starting merging transcription and diarization results...")
     merged_segments = []
     diarization_index = 0 
     
@@ -94,6 +94,7 @@ def merge_transcription_and_diarization(
 
     if not transcription_results:
         # Returning empty list means no merged segments.
+        print("No transcription results to merge")
         return []
 
 
