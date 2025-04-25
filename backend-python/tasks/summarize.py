@@ -106,14 +106,6 @@ def format_transcript_for_llm(merged_segments: list[dict]) -> str:
         else:
             formatted_text += f"[{start_timestamp} - {end_timestamp}] Error Processing: {text}\n"
             
-    # Limit input length for model context window
-    
-    # *** 32K context window for Mistral 7B v0.2 == ROUGHLY 128,000 char ***
-    max_chars = 80000
-    if len(formatted_text) > max_chars:
-        print(f"Warning: Transcript Length ({len(formatted_text)} chars) exceeds rough limit ({max_chars})")
-        formatted_text = formatted_text[:max_chars] + "\n[... Transcript Truncated ...]"
-    
     return formatted_text
 
 # --- Helper Function
