@@ -88,4 +88,4 @@ def format_transcript_for_llm(merged_segments: list[dict]) -> str:
     if not merged_segments:
         return "## Empty Transcript ##"
     
-    
+    formatted_text = "Meeting Transcript:\n\n"
