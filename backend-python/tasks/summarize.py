@@ -397,4 +397,11 @@ async def run(merged_segments: list[dict]) -> dict | None:
             chunk_prompt = get_llm_prompt("chunk_summary", chunk_text)
             
             chunk_summary_text = await generate_summary_async(chunk_prompt, max_new_tokens_chunk_summary)
+            
+            if chunk_summary_text.startswith("Error during") or not chunk_summary_text.strip():
+                print(f"Error or empty summary...Skipping")
+                continue
+            
+            chunk_summaries_list.append(f"Summary of Section {i+1}:\n{chunk_summary_text.strip()}")
+            
         
