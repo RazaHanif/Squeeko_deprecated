@@ -291,8 +291,6 @@ async def transcribe_audio(
         else:
             print("No files to cleanup")
     
-# -- NEW Combined Transcribe & Diarize Endpoint
-# * Might replace prevous transcribe route * 
 @app.post("/transcribe_and_diarize")
 async def transcribe_and_diarize_audio(
     audio_file: UploadFile = File(...),
