@@ -409,13 +409,9 @@ async def summarize_audio(
         print(f"Received summarization request: {data}")
         summary_result = await summarize.run(data)
 
-        if summary_result is None: # Check if summarize.run returns None on failure (or a dict with error)
+        if summary_result is None:
              print("Summarization pipeline failed.")
              raise HTTPException(status_code=500, detail="Summarization pipeline failed.")
-        # If summarize.run returns a dict even on error, check for 'error' key here:
-        # if isinstance(summary_result, dict) and "error" in summary_result:
-        #      print(f"Summarization pipeline reported error: {summary_result['error']}")
-        #      raise HTTPException(status_code=500, detail=f"Summarization pipeline failed: {summary_result['error']}")
 
 
         return {"summary": summary_result}
