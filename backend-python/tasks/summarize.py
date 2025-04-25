@@ -350,7 +350,6 @@ def parse_llm_output(llm_output_text: str) -> dict:
          text_after_summary = llm_output_text[summary_content_end:]
 
 
-    text_after_keypoints = ""
     key_points_start_marker_pos = text_after_summary.find("[KEY POINTS]") if text_after_summary else llm_output_text.find("[KEY POINTS]")
     if key_points_start_marker_pos != -1:
         key_points_start_abs_pos = (llm_output_text.find("[MAIN TOPIC]") + len("[MAIN TOPIC]") if llm_output_text.find("[MAIN TOPIC]") != -1 else 0) + (text_after_main_topic.find("[SUMMARY]") + len("[SUMMARY]") if text_after_main_topic.find("[SUMMARY]") != -1 else 0) + key_points_start_marker_pos if text_after_summary else key_points_start_marker_pos
@@ -371,27 +370,13 @@ def parse_llm_output(llm_output_text: str) -> dict:
     tasks_start_marker_pos = llm_output_text.find("[TASKS TO COMPLETE]")
     if tasks_start_marker_pos != -1:
          tasks_content_start = tasks_start_marker_pos + len("[TASKS TO COMPLETE]")
-         tasks_block = llm_output_text[tasks_content_start:].strip() # Take everything after the marker
+         tasks_block = llm_output_text[tasks_content_start:].strip() 
+         
          # Split block into list items (look for lines starting with '-' or '*' followed by space/text)
          tasks_items_with_markers = re.split(r'\n\s*[-\*]\s*', '\n' + tasks_block)
          parsed_data["tasks_to_complete"] = [item.strip() for item in tasks_items_with_markers if item.strip()]
-         # Optional: Remove the bullet point marker from the start of each item if needed
-         # parsed_data["tasks_to_complete"] = [re.sub(r'^[-\*]\s*', '', item).strip() for item in parsed_data["tasks_to_complete"]]
+         
 
-    # Refined parsing using find and slicing seems okay. Need to handle cases where a section might be missing
-    # and the next section starts immediately after the previous content. The current logic implicitly handles this
-    # by slicing up to the *next* marker found.
-
-    # Final check: if the text doesn't contain any markers but has content
-    # This might put the whole text into the first parsed field found, or leave fields empty.
-    # It relies heavily on the LLM following the marker format.
-
-    # Alternative parsing: split by all markers at once and then assign based on the order of markers found
-    # This is more complex but potentially more robust if markers are guaranteed to appear in a specific order.
-
-    # For now, the find/slice logic is a reasonable starting point.
-
-    # Use logging instead of print for production
     print("LLM output parsing complete.")
     return parsed_data
 
