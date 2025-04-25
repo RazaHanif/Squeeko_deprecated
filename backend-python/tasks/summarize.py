@@ -325,33 +325,74 @@ def parse_llm_output(llm_output_text: str) -> dict:
         "tasks_to_complete": "[TASKS TO COMPLETE]"
     }
     
-    # Use regex to find content between markers
-    main_topic_match = re.search(rf"{re.escape(markers['main_topic'])}(.*?){re.escape(markers['summary'])}", llm_output_text, re.DOTALL)
-    summary_match = re.search(rf"{re.escape(markers['summary'])}(.*?){re.escape(markers['key_points'])}", llm_output_text, re.DOTALL)
-    key_points_match = re.search(rf"{re.escape(markers['key_points'])}(.*?){re.escape(markers['tasks_to_complete'])}", llm_output_text, re.DOTALL)
-    tasks_to_complete_match = re.search(rf"{re.escape(markers['tasks_to_complete'])}(.*?)", llm_output_text, re.DOTALL)
-    
-    if main_topic_match:
-        parsed_data["main_topic"] = main_topic_match.group(1).strip()
-    
-    if summary_match:
-        parsed_data["summary"] = summary_match.group(1).strip()
-    
-    if key_points_match:
-        key_points_block = key_points_match.group(1).strip()
-        parsed_data["key_points"] = [
-            line.strip() for line in key_points_block.split("\n")
-            if line.strip() and (line.strip().startswith("-") or line.strip().startswith("*"))
-        ]
-        
-    if tasks_to_complete_match:
-        tasks_to_complete_block = tasks_to_complete_match.group(1).strip()
-        parsed_data["tasks_to_complete"] = [
-            line.strip() for line in tasks_to_complete_block.split("\n")
-            if line.strip() and (line.strip().startswith("-") or line.strip().startswith("*"))
-        ]
-        
-    print("...End LLM output parse")
+    # Use find and slicing to extract content between markers
+    text_after_main_topic = ""
+    main_topic_start_marker_pos = llm_output_text.find("[MAIN TOPIC]")
+
+    if main_topic_start_marker_pos != -1:
+        main_topic_content_start = main_topic_start_marker_pos + len("[MAIN TOPIC]")
+
+        summary_start_marker_pos = llm_output_text.find("[SUMMARY]", main_topic_content_start)
+        main_topic_content_end = summary_start_marker_pos if summary_start_marker_pos != -1 else len(llm_output_text)
+        parsed_data["main_topic"] = llm_output_text[main_topic_content_start:main_topic_content_end].strip()
+        text_after_main_topic = llm_output_text[main_topic_content_end:] # Remaining text after main topic content
+
+
+    text_after_summary = ""
+    summary_start_marker_pos = text_after_main_topic.find("[SUMMARY]") if text_after_main_topic else llm_output_text.find("[SUMMARY]")
+    if summary_start_marker_pos != -1:
+         summary_start_abs_pos = (llm_output_text.find("[MAIN TOPIC]") + len("[MAIN TOPIC]") if llm_output_text.find("[MAIN TOPIC]") != -1 else 0) + summary_start_marker_pos if text_after_main_topic else summary_start_marker_pos
+         summary_content_start = summary_start_abs_pos + len("[SUMMARY]")
+
+         key_points_start_marker_pos = llm_output_text.find("[KEY POINTS]", summary_content_start)
+         summary_content_end = key_points_start_marker_pos if key_points_start_marker_pos != -1 else len(llm_output_text)
+         parsed_data["summary"] = llm_output_text[summary_content_start:summary_content_end].strip()
+         text_after_summary = llm_output_text[summary_content_end:]
+
+
+    text_after_keypoints = ""
+    key_points_start_marker_pos = text_after_summary.find("[KEY POINTS]") if text_after_summary else llm_output_text.find("[KEY POINTS]")
+    if key_points_start_marker_pos != -1:
+        key_points_start_abs_pos = (llm_output_text.find("[MAIN TOPIC]") + len("[MAIN TOPIC]") if llm_output_text.find("[MAIN TOPIC]") != -1 else 0) + (text_after_main_topic.find("[SUMMARY]") + len("[SUMMARY]") if text_after_main_topic.find("[SUMMARY]") != -1 else 0) + key_points_start_marker_pos if text_after_summary else key_points_start_marker_pos
+        key_points_content_start = key_points_start_abs_pos + len("[KEY POINTS]")
+
+        tasks_start_marker_pos = llm_output_text.find("[TASKS TO COMPLETE]", key_points_content_start)
+        key_points_content_end = tasks_start_marker_pos if tasks_start_marker_pos != -1 else len(llm_output_text)
+        key_points_block = llm_output_text[key_points_content_start:key_points_content_end].strip()
+
+        # This regex splits the block by lines starting with '-' or '*' followed by whitespace
+        key_point_items_with_markers = re.split(r'\n\s*[-\*]\s*', '\n' + key_points_block)
+        # Clean up items: remove potential leading/trailing whitespace and empty items
+        parsed_data["key_points"] = [item.strip() for item in key_point_items_with_markers if item.strip()]
+
+    # Find start of tasks section (from the end of key points or where tasks marker was found)
+    # Need a reliable way to find the start position if previous markers were missing.
+    # Let's search from the beginning of the text for the marker.
+    tasks_start_marker_pos = llm_output_text.find("[TASKS TO COMPLETE]")
+    if tasks_start_marker_pos != -1:
+         tasks_content_start = tasks_start_marker_pos + len("[TASKS TO COMPLETE]")
+         tasks_block = llm_output_text[tasks_content_start:].strip() # Take everything after the marker
+         # Split block into list items (look for lines starting with '-' or '*' followed by space/text)
+         tasks_items_with_markers = re.split(r'\n\s*[-\*]\s*', '\n' + tasks_block)
+         parsed_data["tasks_to_complete"] = [item.strip() for item in tasks_items_with_markers if item.strip()]
+         # Optional: Remove the bullet point marker from the start of each item if needed
+         # parsed_data["tasks_to_complete"] = [re.sub(r'^[-\*]\s*', '', item).strip() for item in parsed_data["tasks_to_complete"]]
+
+    # Refined parsing using find and slicing seems okay. Need to handle cases where a section might be missing
+    # and the next section starts immediately after the previous content. The current logic implicitly handles this
+    # by slicing up to the *next* marker found.
+
+    # Final check: if the text doesn't contain any markers but has content
+    # This might put the whole text into the first parsed field found, or leave fields empty.
+    # It relies heavily on the LLM following the marker format.
+
+    # Alternative parsing: split by all markers at once and then assign based on the order of markers found
+    # This is more complex but potentially more robust if markers are guaranteed to appear in a specific order.
+
+    # For now, the find/slice logic is a reasonable starting point.
+
+    # Use logging instead of print for production
+    print("LLM output parsing complete.")
     return parsed_data
 
 # --- Main Summarization Pipeline
