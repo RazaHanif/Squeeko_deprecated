@@ -305,10 +305,12 @@ async def transcribe_and_diarize_audio(
     """
     
     # Check if both required models are loaded at startup
-    if transcribe.whisper_model_instance is None or diarize.pyannote_pipeline_instance is None:
+    if transcribe.whisper_model_instance is None or diarize.pyannote_pipeline_instance is None \
+       or summarize.llm_model_instance is None or summarize.llm_tokenizer_instance is None:
+        print("Error: One or more required models not loaded.")
         raise HTTPException(
             status_code=503,
-            detail="Transcription or Diarization service not ready"
+            detail="One or more required services are not ready (models not loaded at startup)."
         )
         
     temp_file_path = None
