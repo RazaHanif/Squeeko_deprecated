@@ -98,20 +98,50 @@ def merge_transcription_and_diarization(
         return []
 
 
-    for chunk_index, chunk_result in enumerate(transcription_results):
+    for chunk_index, result in enumerate(transcription_results):
+        # Process each item in the results list. 
+        # Item can be a success dict, an error dict, or an Exception.
         
-        # Process successful transcription chunk results
-        if isinstance(chunk_result, dict) and "segments" in chunk_result and isinstance(chunk_result["segments"], list):
+        
+        # This means an unexpected exception occurred during the execution of this specific chunk task
+        if isinstance(result, Exception):
+            print(f"Error transcribing chunk {chunk_index}: {result}")
 
+            error_start_abs_sec = chunk_index * (chunk_length_ms / 1000.0)
+            error_end_abs_sec = min(error_start_abs_sec + (chunk_length_ms / 1000.0), original_audio_length_ms / 1000.0)
+            merged_segments.append({
+                "speaker": "Error",
+                "start": round(error_start_abs_sec, 3),
+                "end": round(error_end_abs_sec, 3),
+                "text": f"[[Processing Error for chunk {chunk_index}: {result}]]",
+                "error": str(result)
+            })
+            
+        # This means transcribe_chunk_async returned a dictionary indicating an error (e.g., model not loaded, audio prep error)    
+        elif isinstance(result, dict) and "error" in result:
+             print(f"Transcription error reported by chunk {chunk_index} processing: {result.get('error', 'Unknown error')}")
+             
+             error_start_abs_sec = chunk_index * (chunk_length_ms / 1000.0)
+             error_end_abs_sec = min(error_start_abs_sec + (chunk_length_ms / 1000.0), original_audio_length_ms / 1000.0)
+             merged_segments.append({
+                 "speaker": "Error",
+                 "start": round(error_start_abs_sec, 3),
+                 "end": round(error_end_abs_sec, 3),
+                 "text": result.get("text", "Transcription Error"), # Use the text provided in the error dict
+                 "error": result.get("error", "Transcription Error")
+             })
+             
+        # This means the chunk was successfully transcribed and returned a valid result dictionary with segments
+        elif isinstance(result, dict) and "segments" in result and isinstance(result["segments"], list):
+            print(f"Merging successful result for chunk {chunk_index}")
+         
             chunk_start_time_abs_sec = chunk_index * (chunk_length_ms / 1000.0)
-
-            # Iterate through transcription segments within this chunk
-            for segment in chunk_result.get("segments", []):
+            for segment in result.get("segments", []): # Use .get for safety, default to empty list
+                # Ensure segment has required keys (at least 'start', 'end', 'text')
                 if not isinstance(segment, dict) or "start" not in segment or "end" not in segment or "text" not in segment:
-                    # Skip to next segment
-                    continue 
+                    print(f"Skipping invalid transcription segment format in chunk {chunk_index}: {segment}")
+                    continue
 
-                # Calculate the absolute start and end times for the transcription segment
                 segment_start_abs_sec = chunk_start_time_abs_sec + segment.get("start", 0.0)
                 segment_end_abs_sec = chunk_start_time_abs_sec + segment.get("end", 0.0)
 
@@ -119,8 +149,6 @@ def merge_transcription_and_diarization(
                 current_speaker = "Unknown"
 
                 # Advance the diarization_index to efficiently find potentially overlapping segments
-                # We look ahead as long as the *next* diarization segment starts *before or exactly at*
-                # the *start* of our current transcription segment.
                 while diarization_index < len(diarization_segments) - 1 and \
                       diarization_segments[diarization_index + 1].get("start", float('inf')) <= segment_start_abs_sec:
                     diarization_index += 1
@@ -132,12 +160,10 @@ def merge_transcription_and_diarization(
                     dia_end = dia_seg.get("end", float('inf'))
 
                     # Check if transcription segment overlaps with or is contained within the current diarization segment
-                    # A simple overlap check: max(seg_start, dia_start) < min(seg_end, dia_end)
                     if max(segment_start_abs_sec, dia_start) < min(segment_end_abs_sec, dia_end):
                          current_speaker = dia_seg.get("speaker", "Unknown")
 
-
-                # --- Add the merged segment to the results
+                # --- Add the merged segment to the results ---
                 merged_segments.append({
                     "speaker": current_speaker,
                     "start": round(segment_start_abs_sec, 3),
@@ -145,27 +171,12 @@ def merge_transcription_and_diarization(
                     "text": segment.get("text", "")
                 })
 
-        elif isinstance(chunk_result, dict) and "error" in chunk_result:
-
-             # Handle error dictionaries returned by run_transcription_pipeline
-             print(f"Merging: Found error result for chunk {chunk_index}: {chunk_result.get('error', 'Unknown error')}")
-             error_start_abs_sec = chunk_index * (chunk_length_ms / 1000.0)
-             error_end_abs_sec = min(error_start_abs_sec + (chunk_length_ms / 1000.0), original_audio_length_ms / 1000.0)
-
-             merged_segments.append({
-                 "speaker": "Error",
-                 "start": round(error_start_abs_sec, 3),
-                 "end": round(error_end_abs_sec, 3),
-                 "text": chunk_result.get("error", "Transcription Error"),
-                 "error": chunk_result.get("error", "Transcription Error") 
-             })
+        # Handle any other unexpected item format in the transcription_results list
         else:
-
-            # Handle any other unexpected item format in the transcription_results list
             unknown_start_abs_sec = chunk_index * (chunk_length_ms / 1000.0)
             unknown_end_abs_sec = min(unknown_start_abs_sec + (chunk_length_ms / 1000.0), original_audio_length_ms / 1000.0)
             merged_segments.append({
-                "speaker": "Unknown", # Or "Error"
+                "speaker": "Unknown",
                 "start": round(unknown_start_abs_sec, 3),
                 "end": round(unknown_end_abs_sec, 3),
                 "text": f"[[Unexpected result format for chunk {chunk_index}: {result}]]",
