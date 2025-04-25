@@ -330,27 +330,37 @@ async def transcribe_and_diarize_audio(
             while content := audio_file.read(1024 * 1024):
                 tmp_upload_file.write(content)
 
+        print(f"Saved uploaded file temporarily to: {temp_file_path}")
+        
         try:
             audio_segment_info = AudioSegment.from_file(temp_file_path)
             original_audio_length_ms = len(audio_segment_info)
+            print(f"Original temporary audio length: {original_audio_length_ms} ms")
         except Exception as e:
+            print(f"Warning: Could not load temporary file ({temp_file_path}) to get length for merging: {e}")
             original_audio_length_ms = 0
             
         # --- Run Diarization Pipeline
         
         # Run on full audio file
+        print("Starting Diarization Pipeline")
         diarization_segments = await diarize.run(temp_file_path)
+        print("Finished Diarization Pipeline")
         
         if diarization_segments is None:
+            print("Diarization Pipeline Failed")
             raise HTTPException(
                 status_code=500,
                 detail="Diarization Failed: No speech Detected"
             )
             
         # --- Run Transcription Pipeline
+        print("Starting Transcription Pipeline")
         transcription_results = await transcribe.run_transcription_pipeline(temp_file_path)
+        print("Finished Transcription Pipeline")
         
         if transcription_results is None:
+            print("Transcription Pipeline Failed")
             raise HTTPException(
                 status_code=500,
                 detail="Transcription Failed: Audio Processing Error"
@@ -362,6 +372,10 @@ async def transcribe_and_diarize_audio(
             diarization_segments,
             original_audio_length_ms
         )
+        
+        print(f"Combined processing: Created {len(merged_segments)} merged segments.")
+
+        # --- Run Su
         
         return {"segments": merged_segments}
     
