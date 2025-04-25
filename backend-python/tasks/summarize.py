@@ -344,7 +344,7 @@ async def run(merged_segments: list[dict]) -> dict | None:
     # Step 1: Format Transcript
     transcript_text = format_transcript_for_llm(merged_segments)
     
-    # Define chunk params
+    
     
     # Step 2: Define the prompt
     llm_prompt = get_summarization_prompt(transcript_text)
