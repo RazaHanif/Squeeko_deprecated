@@ -159,61 +159,61 @@ def get_llm_prompt(prompt_type: str, content: str) -> str:
     
     if prompt_type == "final_structured_summary":
         instruction = f"""
-            Combine these summaries into a single, cohesive, structured summary including the overall Main Topic, a concice Summary of the entire meeting, a list of the most important Key Points discussed or decided, and a list of any Action Items or Tasks mentioned.
-            
-            Summaries of different sections:
-            
-            ---
-            {content}
-            ---
-            
-            Provide the output using the exact markers provided:
-            [MAIN TOPIC]
-            A concise, overarching topic of the discussion derived from the summaries.
+Combine these summaries into a single, cohesive, structured summary including the overall Main Topic, a concice Summary of the entire meeting, a list of the most important Key Points discussed or decided, and a list of any Action Items or Tasks mentioned.
 
-            [SUMMARY]
-            A brief summary of the entire conversation based on the section summaries, highlighting the most important themes and outcomes.
+Summaries of different sections:
 
-            [KEY POINTS]
-            - A bulleted list of the main discussion points, decisions made, or significant information shared across all sections.
+---
+{content}
+---
 
-            [TASKS TO COMPLETE]
-            - A bulleted list of any action items, tasks, or next steps mentioned, extracted from the section summaries. For each task, if a person responsible was mentioned in the original section summary, include their name.
+Provide the output using the exact markers provided:
+[MAIN TOPIC]
+A concise, overarching topic of the discussion derived from the summaries.
 
-            Ensure you include all sections even if some are empty (e.g., no tasks mentioned in any summary).
+[SUMMARY]
+A brief summary of the entire conversation based on the section summaries, highlighting the most important themes and outcomes.
+
+[KEY POINTS]
+- A bulleted list of the main discussion points, decisions made, or significant information shared across all sections.
+
+[TASKS TO COMPLETE]
+- A bulleted list of any action items, tasks, or next steps mentioned, extracted from the section summaries. For each task, if a person responsible was mentioned in the original section summary, include their name.
+
+Ensure you include all sections even if some are empty (e.g., no tasks mentioned in any summary).
         """
     
     elif prompt_type == "chunk_summary":
         instruction = f"""
-            Summarize the following section of a meeting transcript concisely:
-            ---
-            {content}
-            ---
-            Concise Summary:
+Summarize the following section of a meeting transcript concisely:
+---
+{content}
+---
+Concise Summary:
         """
     elif prompt_type == "single_full_summary_structured":
         instruction = f"""
-            Analyze the following meeting transcript, identify the main topic, provide a concise summary, extract key discussion points, and list any action items or tasks mentioned.
-            
-            Transcript:
-            ---
-            {content}
-            ---
+Analyze the following meeting transcript, identify the main topic, provide a concise summary, extract key discussion points, and list any action items or tasks mentioned.
 
-            Provide the output in the following structure, using the exact markers provided:
-            [MAIN TOPIC]
-            A concise, overarching topic of the discussion.
+Transcript:
+---
+{content}
+---
 
-            [SUMMARY]
-            A brief summary of the entire conversation, highlighting the most important themes and outcomes.
+Provide the output in the following structure, using the exact markers provided:
+[MAIN TOPIC]
+A concise, overarching topic of the discussion.
 
-            [KEY POINTS]
-            - A bulleted list of the main discussion points, decisions made, or significant information shared.
+[SUMMARY]
+A brief summary of the entire conversation, highlighting the most important themes and outcomes.
 
-            [TASKS TO COMPLETE]
-            - A bulleted list of any action items, tasks, or next steps mentioned during the meeting. For each task, if a person responsible is mentioned or implied, include their name.
+[KEY POINTS]
+- A bulleted list of the main discussion points, decisions made, or significant information shared.
 
-            Ensure you include all sections even if some are empty (e.g., no tasks mentioned).
+[TASKS TO COMPLETE]
+- A bulleted list of any action items, tasks, or next steps mentioned during the meeting. For each task, if a person responsible is mentioned or implied, include their name.
+
+Ensure you include all sections even if some are empty (e.g., no tasks mentioned).
         """
     else:
         raise ValueError(f"Unknown prompt type: {prompt_type}")
