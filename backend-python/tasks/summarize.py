@@ -114,3 +114,7 @@ def format_transcript_for_llm(merged_segments: list[dict]) -> str:
         print(f"Warning: Transcript Length ({len(formatted_text)} chars) exceeds rough limit ({max_chars})")
         formatted_text = formatted_text[:max_chars] + "\n[... Transcript Truncated ...]"
     
+    return formatted_text
+
+# --- Helper Function
+# Define LLM Prompt
