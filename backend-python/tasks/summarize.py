@@ -161,7 +161,7 @@ def chunk_text_with_overlap(text: str, chunk_size: int = 80000, overlap_size: in
 
 # --- Helper Function
 # Define LLM Prompt
-def get_summarization_prompt(transcript_text: str) -> str:
+def get_llm_prompt(transcript_text: str) -> str:
     """ 
     Defines the prompt to instruct the LLM for summarization & structured output
     """
@@ -352,7 +352,7 @@ async def run(merged_segments: list[dict]) -> dict | None:
     if len(transcript_text) <= SINGLE_PASS_CHUNK_SIZE:
     
         # Step 2: Define the prompt
-        llm_prompt = get_summarization_prompt(transcript_text)
+        llm_prompt = get_llm_prompt(transcript_text)
         
         # Step 3: Run LLM Async
         llm_generated_text = await generate_summary_async(llm_prompt)
@@ -394,5 +394,7 @@ async def run(merged_segments: list[dict]) -> dict | None:
         
         for i, chunk_text in enumerate(text_chunks):
             
-            chunk_prompt = get_summarization_prompt()
+            chunk_prompt = get_llm_prompt("chunk_summary", chunk_text)
+            
+            
         
