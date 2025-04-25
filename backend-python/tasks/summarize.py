@@ -178,3 +178,68 @@ async def generate_summary_async(prompt: str) -> str:
         # Add other parameters as needed (e.g., num_beams for beam search, no_repeat_ngram_size)
     }
     
+    try: 
+        print("Start LLM Sumamry...")
+        
+        # Tokenize the prompt
+        inputs = llm_tokenizer_instance(
+            prompt, 
+            return_tensors="pt", 
+            padding=True,
+            truncation=True,
+            max_length=llm_tokenizer_instance.model_max_length
+        ).to(DEVICE)
+        
+        # Run Sync model gen in thread pool
+        # llm_model_instance.generate -- is blocking call
+        output_tokens = await loop.run_in_executor(
+            None,
+            llm_model_instance.generate,
+            inputs.input_ids,
+            attention_mask=inputs.attention_mask,
+            **generation_params
+        )
+        
+        print("...End LLM Summary")
+        
+        # Decode from token to text
+        # Slice to remove the input prompt tokens from the output
+        generated_text = llm_tokenizer_instance.decode(
+            output_tokens[0][inputs.input_ids.shape[-1]:],
+            skip_special_tokens=True
+        )
+        
+        print("LLM Output Ready")
+        return generated_text
+    
+    except Exception as e:
+        print(f"Error occurred during LLM Summary: {e}")
+        return f"Error during LLM Summary: {e}"
+    
+# --- Helper
+# Parse the LLM output
+def parse_llm_output(llm_output: str) -> dict:
+    """ 
+    Parse the LLM text based on the expected struct
+    """
+    
+    print("Starting LLM output parse...")
+    parsed_data = {
+        "main_topic": "",
+        "summary": "",
+        "key_points": [],
+        "tasks_to_complete": []
+    }
+    
+    markers = {
+        "main_topic": "[MAIN TOPIC]",
+        "summary": "[SUMMARY]",
+        "key_points": "[KEY POINTS]",
+        "tasks_to_complete": "[TASKS TO COMPLETE]"
+    }
+    
+    # Use regex to find content between markers
+    main_topic_match = re.search(rf"{re.escape(markers['main_topic'])}(.*?){re.escape(markers['summary'])}")
+    main_topic_match = re.search(rf"{re.escape(markers['summary'])}(.*?){re.escape(markers['key_points'])}")
+    main_topic_match = re.search(rf"{re.escape(markers['key_points'])}(.*?){re.escape(markers['tasks_to_complete'])}")
+    main_topic_match = re.search(rf"{re.escape(markers['tasks_to_complete'])}(.*?)")
