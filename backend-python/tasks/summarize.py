@@ -166,6 +166,32 @@ def get_llm_prompt(prompt_type: str, content: str) -> str:
     Defines the prompt based on the type of summarization needed
     """
     
+    if prompt_type == "final_structured_summary":
+        instuction = f"""
+            Combine these summaries into a single, cohesive, structured summary including the overall Main Topic, a concice Summary of the entire meeting, a list of the most important Key Points discussed or decided, and a list of any Action Items or Tasks mentioned.
+            
+            Summaries of different sections:
+            
+            ---
+            {content}
+            ---
+            
+            Provide the output using the exact markers provided:
+            [MAIN TOPIC]
+            A concise, overarching topic of the discussion derived from the summaries.
+
+            [SUMMARY]
+            A brief summary of the entire conversation based on the section summaries, highlighting the most important themes and outcomes.
+
+            [KEY POINTS]
+            - A bulleted list of the main discussion points, decisions made, or significant information shared across all sections.
+
+            [TASKS TO COMPLETE]
+            - A bulleted list of any action items, tasks, or next steps mentioned, extracted from the section summaries. For each task, if a person responsible was mentioned in the original section summary, include their name.
+
+            Ensure you include all sections even if some are empty (e.g., no tasks mentioned in any summary).
+        """
+        
     
     
     prompt = f""" 
