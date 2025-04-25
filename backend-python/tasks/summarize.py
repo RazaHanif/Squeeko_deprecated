@@ -167,7 +167,7 @@ def get_llm_prompt(prompt_type: str, content: str) -> str:
     """
     
     if prompt_type == "final_structured_summary":
-        instuction = f"""
+        instruction = f"""
             Combine these summaries into a single, cohesive, structured summary including the overall Main Topic, a concice Summary of the entire meeting, a list of the most important Key Points discussed or decided, and a list of any Action Items or Tasks mentioned.
             
             Summaries of different sections:
@@ -193,41 +193,58 @@ def get_llm_prompt(prompt_type: str, content: str) -> str:
         """
     
     elif prompt_type == "chunk_summary":
-        instuction = f"""
+        instruction = f"""
             Summarize the following section of a meeting transcript concisely:
             ---
             {content}
             ---
             Concise Summary:
         """
+    elif prompt_type == "single_full_summary_structured":
+        instruction = f"""
+            Analyze the following meeting transcript, identify the main topic, provide a concise summary, extract key discussion points, and list any action items or tasks mentioned.
+            
+            Transcript:
+            ---
+            {content}
+            ---
+
+            Provide the output in the following structure, using the exact markers provided:
+            [MAIN TOPIC]
+            A concise, overarching topic of the discussion.
+
+            [SUMMARY]
+            A brief summary of the entire conversation, highlighting the most important themes and outcomes.
+
+            [KEY POINTS]
+            - A bulleted list of the main discussion points, decisions made, or significant information shared.
+
+            [TASKS TO COMPLETE]
+            - A bulleted list of any action items, tasks, or next steps mentioned during the meeting. For each task, if a person responsible is mentioned or implied, include their name.
+
+            Ensure you include all sections even if some are empty (e.g., no tasks mentioned).
+        """
+    else:
+        raise ValueError(f"Unkown prompt type: {prompt_type}")
     
     
-    prompt = f""" 
-        You are an AI assitant tasked with analyzing a transcript, identifying the main topic, providing a concise summary, extracting key discussion points and listing any action itmes or tasks mentioned.
-        
-        Analyze the following transcript:
-        
-        ---
-        {transcript_text}
-        ---
-        
-        Please provice the output in the following structure, using the exact markers providied:
-        [MAIN TOPIC]
-        A concise, overarching topic of the discussion.
-        
-        [SUMMARY]
-        A brief summary of the entire coverstaion, highlighting the most important themes and outcomes.
-        
-        [KEY POINTS]
-        - A bulleted list of the main discussion points, decisions made, or significant information shared.
-        
-        [TASKS TO COMPLETE]
-        - A bulleted list of any action items, tasks, or next steps mentioned during the meeting. For each task, if a person responsible is mentioned or implied, include thier name.
-        
-        Ensure you include all sections even if some are empty (e.g., no tasks mentioned).
-    """
+    messages = [
+        {"role": "system", "content": "You are a helpful AI assistant."},
+        {"role": "user", "content": instruction}
+    ]
+    
+    if llm_tokenizer_instance is None:
+        print("Error: LLM Tokenizer not loaded")
+        return instruction
+    
+    prompt = llm_tokenizer_instance.apply_chat_template(
+        messages,
+        tokenize=False,
+        add_generation_prompt=True
+    )
     
     return prompt
+
 
 # --- Helper
 # Run LLM Inference Async
@@ -388,7 +405,7 @@ async def run(merged_segments: list[dict]) -> dict | None:
     if len(transcript_text) <= SINGLE_PASS_CHUNK_SIZE:
     
         # Step 2: Define the prompt
-        llm_prompt = get_llm_prompt(transcript_text)
+        llm_prompt = get_llm_prompt("single_full_summary_structured", transcript_text)
         
         # Step 3: Run LLM Async
         llm_generated_text = await generate_summary_async(llm_prompt)
