@@ -250,4 +250,9 @@ def parse_llm_output(llm_output_text: str) -> dict:
     if summary_match:
         parsed_data["summary"] = summary_match.group(1).strip()
     
-    
+    if key_points_match:
+        # Extract text & split into list items
+        # Assumes bullet poitns like "- "
+        key_points_text = key_points_match.group(1).strip()
+        parsed_data["key_points"] = [item.strip() for item in key_points_text.split("- ") if item.strip()]
+        
