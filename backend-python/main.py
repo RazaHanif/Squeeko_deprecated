@@ -392,9 +392,58 @@ async def transcribe_and_diarize_audio(
         else:
             print("No files to clean")
 
-
 @app.post("/summarize")
-async def summarize_audio(data: models.AudioRequest, auth: bool = Depends(require_auth)):
+async def summarize_audio(
+    data: UploadFile = File(...),
+    auth: bool = Depends(require_auth)
+):
+    """
+    Receives a summarization request (likely text input via SummaryRequest model),
+    runs the summarization pipeline, and returns the summary.
+    """
+    if summarize.llm_model_instance is None or summarize.llm_tokenizer_instance is None:
+         print("Error: Summarization service not ready (model not loaded).")
+         raise HTTPException(status_code=503, detail="Summarization service not ready.")
+
+    try:
+        print(f"Received summarization request: {data}")
+        # Placeholder call - adjust arguments based on your actual summarize.run
+        # This needs to call the LLM logic from tasks/summarize.py
+        # If summarize.run was designed to take merged_segments, you'll need to adapt
+        # how the input 'data' from SummaryRequest is used here.
+        # For example, if SummaryRequest has a 'transcript_text' field:
+        # summary_input_text = data.transcript_text
+        # summary_result = await summarize.run(summary_input_text) # Adapt summarize.run input
+        # OR if summarize.run expects the merged segment list:
+        # summary_input_segments = data.segments # Example if SummaryRequest includes segments
+        # summary_result = await summarize.run(summary_input_segments) # Adapt summarize.run input
+
+        # Based on our previous summary pipeline taking merged_segments, this endpoint
+        # might need to format the input from SummaryRequest into that format, or
+        # summarize.run might need an overload or different input method.
+        # For now, leaving it as a placeholder call expecting summarize.run to handle 'data'.
+        summary_result = await summarize.run(data) # Adapt this call based on summarize.run's input
+
+        if summary_result is None: # Check if summarize.run returns None on failure (or a dict with error)
+             print("Summarization pipeline failed.")
+             raise HTTPException(status_code=500, detail="Summarization pipeline failed.")
+        # If summarize.run returns a dict even on error, check for 'error' key here:
+        # if isinstance(summary_result, dict) and "error" in summary_result:
+        #      print(f"Summarization pipeline reported error: {summary_result['error']}")
+        #      raise HTTPException(status_code=500, detail=f"Summarization pipeline failed: {summary_result['error']}")
+
+
+        return {"summary": summary_result}
+
+    except HTTPException as e:
+        # Re-raise specific HTTP errors
+        raise e
+    except Exception as e:
+        # Catch any unexpected errors during summarization
+        # Use logging instead of print in production, include traceback
+        print(f"An unexpected error occurred during summarization: {e}")
+        # In production, log the full traceback here: logging.exception(...)
+        raise HTTPException(status_code=500, detail="An internal server error occurred during summarization.")
     """ 
     Recives a summarization request, runs the summarization pipeline, and returns the summary.
     """
