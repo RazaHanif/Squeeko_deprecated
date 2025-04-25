@@ -344,41 +344,55 @@ async def run(merged_segments: list[dict]) -> dict | None:
     # Step 1: Format Transcript
     transcript_text = format_transcript_for_llm(merged_segments)
     
+    SINGLE_PASS_CHUNK_SIZE = 90000
+    
     CHUNK_SIZE = 80000
     CHUNK_OVERLAP = 5000
     
+    if len(transcript_text) <= SINGLE_PASS_CHUNK_SIZE:
     
-    
-    # Step 2: Define the prompt
-    llm_prompt = get_summarization_prompt(transcript_text)
-    
-    # Step 3: Run LLM Async
-    llm_generated_text = await generate_summary_async(llm_prompt)
-    
-    if llm_generated_text.startswith("Error during LLM Summary"):
-        print(f"LLM Generation Failed: {llm_generated_text}")
-        return {
-            "error": llm_generated_text,
-            "main_topic": "Summarization Failed",
-            "summary": llm_generated_text,
-            "key_points": [],
-            "tasks_to_complete": []
-        }
+        # Step 2: Define the prompt
+        llm_prompt = get_summarization_prompt(transcript_text)
         
-    # Step 4: Parse LLM Output
-    # Parsing can fail if LLM doesnt follow format
-    try: 
-        structured_summary = parse_llm_output(llm_generated_text)
-        return structured_summary
-    except Exception as e:
-        print(f"Error parsing LLM output: {e}")
-        print(f"LLM Output Text: \n---\n{llm_generated_text}\n---")
-        return {
-            "error": f"Failed to Parse LLM Ouput: {e}",
-            "main_topic": "Parsing Failed",
-            "summary": "Failed to parse the summary from the LLM output",
-            "key_points": [],
-            "tasks_to_complete": [],
-            "raw_llm_output": llm_generated_text
-        }
+        # Step 3: Run LLM Async
+        llm_generated_text = await generate_summary_async(llm_prompt)
+        
+        if llm_generated_text.startswith("Error during LLM Summary"):
+            print(f"LLM Generation Failed: {llm_generated_text}")
+            return {
+                "error": llm_generated_text,
+                "main_topic": "Summarization Failed",
+                "summary": llm_generated_text,
+                "key_points": [],
+                "tasks_to_complete": []
+            }
+            
+        # Step 4: Parse LLM Output
+        # Parsing can fail if LLM doesnt follow format
+        try: 
+            structured_summary = parse_llm_output(llm_generated_text)
+            return structured_summary
+        except Exception as e:
+            print(f"Error parsing LLM output: {e}")
+            print(f"LLM Output Text: \n---\n{llm_generated_text}\n---")
+            return {
+                "error": f"Failed to Parse LLM Ouput: {e}",
+                "main_topic": "Parsing Failed",
+                "summary": "Failed to parse the summary from the LLM output",
+                "key_points": [],
+                "tasks_to_complete": [],
+                "raw_llm_output": llm_generated_text
+            }
     
+    else: 
+        # Chunked Summarization
+        print("Splitting text into chunks...")
+        text_chunks = chunk_text_with_overlap(transcript_text)
+        
+        chunk_summaries_list = []
+        max_new_tokens_chunk_summary = 200
+        
+        for i, chunk_text in enumerate(text_chunks):
+            
+            chunk_prompt = get_llm_prompt()
+        
