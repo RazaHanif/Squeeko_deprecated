@@ -239,7 +239,7 @@ Ensure you include all sections even if some are empty (e.g., no tasks mentioned
 
 # --- Helper
 # Run LLM Inference Async
-async def generate_summary_async(prompt: str) -> str:
+async def generate_summary_async(prompt: str, max_new_tokens: int) -> str:
     """ 
     Runs the LLM text generation call in a thread pool    
     """
@@ -254,7 +254,7 @@ async def generate_summary_async(prompt: str) -> str:
     
     # Define Generation Params
     generation_params = {
-        "max_new_tokens": 1000, # Maximum number of tokens to generate (summary length)
+        "max_new_tokens": max_new_tokens, # Maximum number of tokens to generate (summary length)
         "do_sample": True,     # Use sampling (more creative) vs. greedy decoding (more deterministic)
         "temperature": 0.7,    # Controls randomness (lower = more focused, higher = more creative) - use with do_sample=True
         "top_p": 0.9,          # Nucleus sampling threshold - use with do_sample=True
@@ -396,7 +396,7 @@ async def run(merged_segments: list[dict]) -> dict | None:
         llm_prompt = get_llm_prompt("single_full_summary_structured", transcript_text)
         
         # Step 3: Run LLM Async
-        llm_generated_text = await generate_summary_async(llm_prompt)
+        llm_generated_text = await generate_summary_async(llm_prompt, )
         
         if llm_generated_text.startswith("Error during LLM Summary"):
             print(f"LLM Generation Failed: {llm_generated_text}")
