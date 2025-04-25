@@ -251,8 +251,19 @@ def parse_llm_output(llm_output_text: str) -> dict:
         parsed_data["summary"] = summary_match.group(1).strip()
     
     if key_points_match:
-        # Extract text & split into list items
-        # Assumes bullet poitns like "- "
-        key_points_text = key_points_match.group(1).strip()
-        parsed_data["key_points"] = [item.strip() for item in key_points_text.split("- ") if item.strip()]
+        key_points_block = key_points_match.group(1).strip()
+        parsed_data["key_points"] = [
+            line.strip() for line in key_points_block.split("\n")
+            if line.strip() and (line.strip().startswith("-") or line.strip().startswith("*"))
+        ]
         
+    if tasks_to_complete_match:
+        tasks_to_complete_block = tasks_to_complete_match.group(1).strip()
+        parsed_data["tasks_to_complete"] = [
+            line.strip() for line in tasks_to_complete_block.split("\n")
+            if line.strip() and (line.strip().startswith("-") or line.strip().startswith("*"))
+        ]
+        
+    print("...End LLM output parse")
+    return parsed_data
+
