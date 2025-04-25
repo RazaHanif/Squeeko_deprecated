@@ -119,7 +119,7 @@ def format_transcript_for_llm(merged_segments: list[dict]) -> str:
 
 # --- Helper Function
 # Chunk text with overlap
-def chunk_text_with_overlap(text: str, chunk_size: int, overlap_size: int) -> List[str]:
+def chunk_text_with_overlap(text: str, chunk_size: int = 80000, overlap_size: int = 5000) -> List[str]:
     """
     Splits a large text string into smaller chunks with overlap (character-based).
 
@@ -132,7 +132,7 @@ def chunk_text_with_overlap(text: str, chunk_size: int, overlap_size: int) -> Li
         List[str]: A list of text chunks.
     """
     if chunk_size <= overlap_size < 0 or overlap_size >= chunk_size:
-        print(f"Error: Invalid Chunk Params.")
+        print("Error: Invalid Chunk Params.")
         return [text]
     
     chunks = []
@@ -343,6 +343,9 @@ async def run(merged_segments: list[dict]) -> dict | None:
         
     # Step 1: Format Transcript
     transcript_text = format_transcript_for_llm(merged_segments)
+    
+    CHUNK_SIZE = 80000
+    CHUNK_OVERLAP = 5000
     
     
     
