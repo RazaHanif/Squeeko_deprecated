@@ -216,7 +216,7 @@ def get_llm_prompt(prompt_type: str, content: str) -> str:
             Ensure you include all sections even if some are empty (e.g., no tasks mentioned).
         """
     else:
-        raise ValueError(f"Unkown prompt type: {prompt_type}")
+        raise ValueError(f"Unknown prompt type: {prompt_type}")
     
     
     messages = [
