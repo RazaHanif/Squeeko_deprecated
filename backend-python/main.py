@@ -165,10 +165,10 @@ def merge_transcription_and_diarization(
             unknown_start_abs_sec = chunk_index * (chunk_length_ms / 1000.0)
             unknown_end_abs_sec = min(unknown_start_abs_sec + (chunk_length_ms / 1000.0), original_audio_length_ms / 1000.0)
             merged_segments.append({
-                "speaker": "Unknown",
+                "speaker": "Unknown", # Or "Error"
                 "start": round(unknown_start_abs_sec, 3),
                 "end": round(unknown_end_abs_sec, 3),
-                "text": "[[Unexpected result format]]",
+                "text": f"[[Unexpected result format for chunk {chunk_index}: {result}]]",
                 "error": "Unexpected result format"
             })
 
