@@ -1,6 +1,7 @@
 import asyncio
 import os
 import torch
+import time
 import json
 import re
 
@@ -89,3 +90,19 @@ def format_transcript_for_llm(merged_segments: list[dict]) -> str:
         return "## Empty Transcript ##"
     
     formatted_text = "Meeting Transcript:\n\n"
+    for segment in merged_segments:
+        # Check segment has expected keys, use .get for safety
+        speaker = segment.get("speaker", "Unkown Speaker")
+        start_time = segment.get("start", 0.0)
+        end_time = segment.get("end", 0.0)
+        text = segment.get("text", "").strip()
+        
+        # Format timestamp (HH:MM:SS)
+        start_timestamp = time.strftime('%H:%M:%S' , time.gmtime(start_time))
+        end_timestamp = time.strftime('%H:%M:%S' , time.gmtime(end_time))
+        
+        if text:
+            formatted_text += f"[{start_timestamp} - {end_timestamp}] {speaker}: {text}\n"
+        else:
+            formatted_text += f"[{start_timestamp} - {end_timestamp}] Error Processing: {text}\n"
+            
