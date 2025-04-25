@@ -210,7 +210,7 @@ async def generate_summary_async(prompt: str) -> str:
     
     # Define Generation Params
     generation_params = {
-        "max_new_tokens": 500, # Maximum number of tokens to generate (summary length)
+        "max_new_tokens": 1000, # Maximum number of tokens to generate (summary length)
         "do_sample": True,     # Use sampling (more creative) vs. greedy decoding (more deterministic)
         "temperature": 0.7,    # Controls randomness (lower = more focused, higher = more creative) - use with do_sample=True
         "top_p": 0.9,          # Nucleus sampling threshold - use with do_sample=True
@@ -392,17 +392,16 @@ async def run(merged_segments: list[dict]) -> dict | None:
         text_chunks = chunk_text_with_overlap(transcript_text)
         
         chunk_summaries_list = []
-        max_new_tokens_chunk_summary = 200
         
         # Step 2: Summarize each chunk
         for i, chunk_text in enumerate(text_chunks):
             
             chunk_prompt = get_llm_prompt("chunk_summary", chunk_text)
             
-            chunk_summary_text = await generate_summary_async(chunk_prompt, max_new_tokens_chunk_summary)
+            chunk_summary_text = await generate_summary_async(chunk_prompt)
             
             if chunk_summary_text.startswith("Error during") or not chunk_summary_text.strip():
-                print(f"Error or empty summary...Skipping")
+                print("Error or empty summary...Skipping")
                 continue
             
             chunk_summaries_list.append(f"Summary of Section {i+1}:\n{chunk_summary_text.strip()}")
@@ -426,4 +425,17 @@ async def run(merged_segments: list[dict]) -> dict | None:
         final_summary_prompt = get_llm_prompt("final_structured_summary", combined_chunk_summaries_text)
         
         
-        max_new_tokens_chunk_summary
+        llm_generated_text_final = await generate_summary_async(final_summary_prompt)
+        
+        if llm_generated_text_final.startswith("Error during"):
+            print(f"LLM Generation Failed: {llm_generated_text_final}")
+            return {
+                "error": llm_generated_text_final, 
+                "main_topic": "Summarization Failed", 
+                "summary": llm_generated_text_final, 
+                "key_points": [], 
+                "tasks_to_complete": []
+            }
+            
+        # Step 5: Parse LLM Output
+        
