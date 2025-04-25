@@ -284,3 +284,28 @@ async def run(merged_segments: list[dict]) -> dict | None:
     """
     
     global llm_model_instance, llm_tokenizer_instance
+    
+    if llm_model_instance is None or llm_tokenizer_instance is None:
+        print("Error: LLM Model or Tokenizer not loaded")
+        return {"Error": "Summarization model not loaded"}
+    
+    if not merged_segments:
+        print("No merged segments provided")
+        return {
+            "main_topic": "No audio content",
+            "summary": "The audio cintained no discernible speech",
+            "key_points": [],
+            "tasks_to_complete": []
+        }
+        
+    # Step 1: Format Transcript
+    transcript_text = format_transcript_for_llm(merged_segments)
+    
+    # Step 2: Define the prompt
+    llm_prompt = get_summarization_prompt(transcript_text)
+    
+    # Step 3: Run LLM Async
+    llm_generated_text = await generate_summary_async(llm_prompt)
+    
+    
+    
