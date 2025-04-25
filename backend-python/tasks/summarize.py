@@ -118,3 +118,25 @@ def format_transcript_for_llm(merged_segments: list[dict]) -> str:
 
 # --- Helper Function
 # Define LLM Prompt
+def get_summarization_prompt(transcript_text: str) -> str:
+    """ 
+    Defines the prompt to instruct the LLM for summarization & structured output
+    """
+    
+    prompt = f""" 
+        You are an AI assitant tasked with analyzing a transcript, identifying the main topic, providing a concise summary, extracting key discussion points and listing any action itmes or tasks mentioned.
+        
+        Analyze the following transcript:
+        
+        ---
+        {transcript_text}
+        ---
+        
+        Please provice the output in the following structure, using the exact markers providied:
+        [MAIN TOPIC]
+        A concise, overarching topic of the discussion.
+        
+        [SUMMARY]
+        a brief summary of the entire coverstaio
+    
+    """
