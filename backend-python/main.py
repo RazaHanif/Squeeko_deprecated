@@ -407,22 +407,7 @@ async def summarize_audio(
 
     try:
         print(f"Received summarization request: {data}")
-        # Placeholder call - adjust arguments based on your actual summarize.run
-        # This needs to call the LLM logic from tasks/summarize.py
-        # If summarize.run was designed to take merged_segments, you'll need to adapt
-        # how the input 'data' from SummaryRequest is used here.
-        # For example, if SummaryRequest has a 'transcript_text' field:
-        # summary_input_text = data.transcript_text
-        # summary_result = await summarize.run(summary_input_text) # Adapt summarize.run input
-        # OR if summarize.run expects the merged segment list:
-        # summary_input_segments = data.segments # Example if SummaryRequest includes segments
-        # summary_result = await summarize.run(summary_input_segments) # Adapt summarize.run input
-
-        # Based on our previous summary pipeline taking merged_segments, this endpoint
-        # might need to format the input from SummaryRequest into that format, or
-        # summarize.run might need an overload or different input method.
-        # For now, leaving it as a placeholder call expecting summarize.run to handle 'data'.
-        summary_result = await summarize.run(data) # Adapt this call based on summarize.run's input
+        summary_result = await summarize.run(data)
 
         if summary_result is None: # Check if summarize.run returns None on failure (or a dict with error)
              print("Summarization pipeline failed.")
