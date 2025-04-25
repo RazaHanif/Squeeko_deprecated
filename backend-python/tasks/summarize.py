@@ -218,7 +218,7 @@ async def generate_summary_async(prompt: str) -> str:
     
 # --- Helper
 # Parse the LLM output
-def parse_llm_output(llm_output: str) -> dict:
+def parse_llm_output(llm_output_text: str) -> dict:
     """ 
     Parse the LLM text based on the expected struct
     """
@@ -239,7 +239,7 @@ def parse_llm_output(llm_output: str) -> dict:
     }
     
     # Use regex to find content between markers
-    main_topic_match = re.search(rf"{re.escape(markers['main_topic'])}(.*?){re.escape(markers['summary'])}")
+    main_topic_match = re.search(rf"{re.escape(markers['main_topic'])}(.*?){re.escape(markers['summary'])}", llm_output_text, re.DOTALL)
     main_topic_match = re.search(rf"{re.escape(markers['summary'])}(.*?){re.escape(markers['key_points'])}")
     main_topic_match = re.search(rf"{re.escape(markers['key_points'])}(.*?){re.escape(markers['tasks_to_complete'])}")
     main_topic_match = re.search(rf"{re.escape(markers['tasks_to_complete'])}(.*?)")
