@@ -2,6 +2,7 @@ venv/
 __pychache__/
 *.log
 .env
+/tests
 
 # i dont think i need this one here
 node_modules/
