@@ -15,5 +15,10 @@ async def verify_token(auth_header: str | None) -> bool:
         print("INFO: Test token accepted")
         return True
         
-        
+    if auth_header.startswith("Bearer "):
+        real_token = auth_header.split(" ")[1]
+        print(f"INFO: Real token verifcation not implmented: {real_token}")
+        return False
     
+    print("WARNING: Invalid auth token")
+    return False
