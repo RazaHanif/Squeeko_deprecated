@@ -5,6 +5,8 @@ require('dotenv').config()
 const express = require('express')
 const app = express()
 
+const port = process.env.PORT || 3000
+
 
 // Middleware
 app.use(express.json())
@@ -19,9 +21,6 @@ app.get('/', (req, res) => {
         message: 'Hello, Squeeko!'
     })
 })
-
-// Idk if this is the right setup for this, will need to check later
-const port = process.env.PORT || 3000
 
 // Server
 const start = async () => {
