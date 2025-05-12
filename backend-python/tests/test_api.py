@@ -14,7 +14,6 @@ TEST_AUDIO_DIR = Path(__file__).parent / "audio"
 TEST_SILENCE_MP3 = TEST_AUDIO_DIR / "silence.mp3"
 TEST_SHORT_ENG_MP3 = TEST_AUDIO_DIR / "test_en.mp3"
 TEST_SHORT_FA_MP3 = TEST_AUDIO_DIR / "test_fa.mp3"
-
 TEST_AUDIO_DIR.mkdir(exist_ok=True)
 
 if not TEST_SILENCE_MP3.exists():
@@ -37,6 +36,7 @@ async def async_client():
     """ Provides an async httpx client for testing FastAPI app """
     async with httpx.AsyncClient(app=app, base_url="http://testserver") as client:
         yield client
+
         
 # --- Helper to open audio files in binary
 def open_audio_file(file_path: Path):
@@ -88,7 +88,7 @@ async def test_transcribe_audio(async_client: httpx.AsyncClient):
     assert "transcript" in response_json
     assert isinstance(response_json["transcript"], str)
 
-    # If you use a file with known speech, assert specific content here
+    # expand later to use a file with known speech, assert specific content here
     # assert "expected phrase" in response_json["transcript"].lower()
 
 
