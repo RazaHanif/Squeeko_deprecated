@@ -15,7 +15,8 @@ start = time.time()
 # for production the values change to: load_model(") & transcribe(audioPath)
 
 model = whisper.load_model(whisper_model, device="cpu")
-result = model.transcribe(enAudio, fp16=False, task="translate")
+enResult = model.transcribe(enAudio, fp16=False, task="translate")
+faResult = model.transcribe(faAudio, fp16=False, task="translate")
 
 end = time.time()
 
