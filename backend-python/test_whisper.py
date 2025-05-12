@@ -2,7 +2,7 @@ import os
 import whisper
 import time
 
-whisper_model = "base"
+whisper_model = "medium"
 
 enAudio = "./tests/audio/test_en.mp3"
 faAudio = "./tests/audio/test_fa.mp3"
