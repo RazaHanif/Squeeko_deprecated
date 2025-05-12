@@ -26,7 +26,7 @@ app.get('/', (req, res) => {
 const start = async () => {
     try {
         app.listen(port, () => {
-            console.log(`Squeeko Server is live on port: ${port}`);            
+            console.log(`Squeeko.js Server is live on port: ${port}`);            
         })
     } catch (err) {
         console.log(err);
