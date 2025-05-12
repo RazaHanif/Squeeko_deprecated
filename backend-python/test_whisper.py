@@ -22,4 +22,5 @@ end = time.time()
 
 print(f"Transcription Completed: {end - start:2f} seconds")
 
-print(result["text"])
+print(f"English Test File: {enResult['text']}")
+print(f"Persian Test File: {faResult['text']}")
