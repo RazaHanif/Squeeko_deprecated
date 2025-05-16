@@ -24,10 +24,9 @@ EXPECTED_FARSI_TRANSCRIPT = """Dear friends, welcome to the Mashalv program. I t
 
 # --- Fixture for the Async Test Client
 
-@pytest.fixture(scope="module")
+@pytest_asyncio.fixture
 async def async_client():
     """Provides an asynchronous httpx client for testing the FastAPI app."""
-    
     async with httpx.AsyncClient(app=app, base_url="http://testserver") as client:
         yield client
 
