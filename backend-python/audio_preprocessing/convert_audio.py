@@ -3,6 +3,8 @@ import pydub
 import subprocess
 import tempfile
 
+from pydub import AudioSegment
+
 
 # Converts w.e file type to the correct WAV format
 

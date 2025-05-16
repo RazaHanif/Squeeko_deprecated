@@ -2,6 +2,7 @@ import asyncio
 import numpy as np
 import torch
 import whisper
+import pydub
 import os
 import time
 from pydub import AudioSegment
@@ -9,7 +10,7 @@ from pydub import AudioSegment
 # Just for testing rn?
 from dotenv import load_dotenv
 
-from ..audio_preprocessing import (
+from audio_preprocessing import (
     chunk_audio,
     convert_audio,
     trim_silence
