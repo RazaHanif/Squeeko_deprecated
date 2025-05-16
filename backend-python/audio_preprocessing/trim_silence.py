@@ -1,5 +1,5 @@
 from pydub import AudioSegment
-from pydub.silence import detect_leading_silence, detect_trailing_silence, split_on_silence
+from pydub.silence import detect_leading_silence
 import io
 
 
