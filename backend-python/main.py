@@ -440,5 +440,3 @@ async def summarize_audio(
         print(f"An unexpected error occurred during summarization: {e}")
         raise HTTPException(status_code=500, detail="An internal server error occurred during summarization.")
     
-
-transcribe_and_diarize_audio("./audio/test_en.mp3", True)
