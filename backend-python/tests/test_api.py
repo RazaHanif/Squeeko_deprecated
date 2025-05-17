@@ -129,6 +129,8 @@ async def test_transcribe_and_diarize_audio(async_client: httpx.AsyncClient):
     # Switch this later to a file with multiple speakers
     # Waiting for ghazal to send more test audios
     audio_file_to_test = Path(enTestFile)
+    print(audio_file_to_test.exists())
+    print(audio_file_to_test)
 
     try:
         with open_audio_file(audio_file_to_test) as f:
