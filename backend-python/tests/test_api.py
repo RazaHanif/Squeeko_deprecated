@@ -28,7 +28,7 @@ EXPECTED_FARSI_TRANSCRIPT = """Dear friends, welcome to the Mashalv program. I t
 @pytest_asyncio.fixture
 async def async_client():
     """Provides an asynchronous httpx client for testing the FastAPI app."""
-    transport = httpx.ASGITransport(app=app, lifespan="on")
+    transport = httpx.ASGITransport(app=app)
     async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as client:
         yield client
 
