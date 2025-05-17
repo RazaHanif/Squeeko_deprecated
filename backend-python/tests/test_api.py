@@ -69,6 +69,8 @@ async def test_read_main(async_client: httpx.AsyncClient):
 @pytest.mark.asyncio
 async def test_transcribe_english_audio(async_client: httpx.AsyncClient):
     """Tests the /transcribe endpoint with the English audio file."""
+    enTestFile = Path(enTestFile)
+    
     try:
         with open_audio_file(enTestFile) as f:
             files = {"audio_file": (enTestFile.name, f, "audio/mp3")}
