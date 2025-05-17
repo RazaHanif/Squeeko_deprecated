@@ -20,12 +20,19 @@ async def lifespan(app: FastAPI):
     Loads the Whisper and Pyannote model when the application starts
     """
     print("Starting up application")
+
     print("Loading up Whisper model")
     transcribe.load_whisper_model()
+    print("Whisper model Loaded!")
+    
     print("Loading up Pyannote model")
     diarize.load_pyannote_pipeline(from_local_cache_only=False)
+    print("Pyannote model Loaded!")
+    
+    
     print("Loading up Summarization model")
     summarize.load_llm_model()
+    print("Mistral model Loaded!")
         
      # Optional: Check if models loaded successfully and raise error if critical
     if transcribe.whisper_model_instance is None:
