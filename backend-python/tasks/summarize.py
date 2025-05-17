@@ -59,6 +59,7 @@ def load_llm_model():
             if bnb_config:
                 llm_model_instance = AutoModelForCausalLM.from_pretrained(
                     LLM_MODEL_NAME,
+                    use_auth_token=True,
                     quantization_config=bnb_config,
                     device_map="auto"
                 )
