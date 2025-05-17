@@ -8,10 +8,15 @@ from main import app
 
 from utils.auth import TEST_TOKEN
 
+# This worked atleast?
+# TODO: Add alot of prints through out the pipelines to see progress & where it fails. 
+# TODO: Fix the pyannote & mistral load up errors
+
+
 @pytest.fixture(scope="session")
 def test_client():
     with TestClient(app) as client:
-        yield client  # client is reused for all tests in this session
+        yield client
 
 def test_transcribe_english_audio(test_client):
     with open("./tests/audio/test_en.mp3", "rb") as f:
