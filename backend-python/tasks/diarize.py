@@ -35,7 +35,7 @@ def load_pyannote_pipeline(from_local_cache_only: bool = False):
             pyannote_pipeline_instance = Pipeline.from_pretrained(
                 PYANNOTE_PIPELINE_NAME,
                 use_auth_token=HUGGING_FACE_HUB_TOKEN,
-                device=DEVICE,
+                # device=DEVICE,
                 local_files_only=from_local_cache_only
             )
             
