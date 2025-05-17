@@ -69,11 +69,11 @@ async def test_read_main(async_client: httpx.AsyncClient):
 @pytest.mark.asyncio
 async def test_transcribe_english_audio(async_client: httpx.AsyncClient):
     """Tests the /transcribe endpoint with the English audio file."""
-    enTestFile = Path(enTestFile)
+    test_file = Path(enTestFile)
     
     try:
-        with open_audio_file(enTestFile) as f:
-            files = {"audio_file": (enTestFile.name, f, "audio/mp3")}
+        with open_audio_file(test_file) as f:
+            files = {"audio_file": (test_file.name, f, "audio/mp3")}
 
             response = await async_client.post(
                 "/transcribe",
@@ -97,9 +97,10 @@ async def test_transcribe_english_audio(async_client: httpx.AsyncClient):
 @pytest.mark.asyncio
 async def test_transcribe_farsi_audio(async_client: httpx.AsyncClient):
     """Tests the /transcribe endpoint with the Farsi audio file."""
+    test_file = Path(faTestFile)
     try:
-        with open_audio_file(faTestFile) as f:
-            files = {"audio_file": (faTestFile.name, f, "audio/mp3")}
+        with open_audio_file(test_file) as f:
+            files = {"audio_file": (test_file.name, f, "audio/mp3")}
 
             response = await async_client.post(
                 "/transcribe",
@@ -127,7 +128,7 @@ async def test_transcribe_and_diarize_audio(async_client: httpx.AsyncClient):
 
     # Switch this later to a file with multiple speakers
     # Waiting for ghazal to send more test audios
-    audio_file_to_test = enTestFile
+    audio_file_to_test = Path(enTestFile)
 
     try:
         with open_audio_file(audio_file_to_test) as f:
