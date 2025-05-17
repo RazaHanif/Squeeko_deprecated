@@ -14,8 +14,8 @@ from utils.auth import TEST_TOKEN
 
 
 # Make sure these file paths match where you placed your audio files
-enTestFile = Path("./audio/test_en.mp3")
-faTestFile = Path("./audio/test_fa.mp3")
+enTestFile = "./audio/test_en.mp3"
+faTestFile = "./audio/test_fa.mp3"
 
 # --- Expected Transcripts
 
