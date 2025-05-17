@@ -11,11 +11,10 @@ from utils.auth import TEST_TOKEN
 
 
 # --- Audio paths for test files
+BASE_DIR = Path(__file__).parent
 
-
-# Make sure these file paths match where you placed your audio files
-enTestFile = "./audio/test_en.mp3"
-faTestFile = "./audio/test_fa.mp3"
+enTestFile = BASE_DIR / "audio" /  "test_en.mp3"
+faTestFile = BASE_DIR / "audio" / "test_fa.mp3"
 
 # --- Expected Transcripts
 
