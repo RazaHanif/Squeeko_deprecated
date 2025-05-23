@@ -75,9 +75,8 @@ const start = async () => {
         })
     } catch (err) {
         console.log(err);
-        
     }
 }
 
-
+// Just for testing
 start()
