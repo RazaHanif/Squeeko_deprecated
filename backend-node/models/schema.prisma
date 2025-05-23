@@ -10,6 +10,54 @@ datasource db {
 }
 
 model User {
-    id        Int      @id @default(autoincrement())
-    email     String   
+  id                    String    @id @default(uuid()) @map("id") @db.Uuid
+  email                 String    @unique
+  passwordHash          String    @map("password_hash")
+  firstName             String?   @map("first_name")
+  lastName              String?   @map("last_name")
+  createdAt             DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt             DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  lastLoginAt           DateTime? @map("last_login_at") @db.Timestamptz(6)
+
+  usageQuotaMinutes     Int       @default(60) @map("usage_quota_minutes")
+  usageConsumedMinutes  Int       @default(0) @map("usage_consumed_minutes")
+  usageQuotaSummaries   Int       @default(5) @map("usage_quota_summaries")
+  usageConsumedSummaries Int      @default(0) @map("usage_consumed_summaries")
+
+  stripeCustomerId      String?   @unique @map("stripe_customer_id")
+
+  jobs                  Job[]
+
+  @@map("users") // Maps this model to the 'users' table
+}
+
+model Job {
+  id                         String    @id @default(uuid()) @map("id") @db.Uuid
+  userId                     String    @map("user_id") @db.Uuid
+  user                       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  audioFileUrl               String    @map("audio_file_url")
+  originalFilename           String?   @map("original_filename")
+
+  status                     String    @default("QUEUED") // ENUM: 'QUEUED', 'PROCESSING_STT', 'PROCESSING_TRANSLATION', 'PROCESSING_SUMMARY', 'COMPLETED', 'FAILED'
+  
+  assemblyaiJobId            String?   @unique @map("assemblyai_job_id")
+  
+  assemblyaiOriginalTranscriptJson JsonB? @map("assemblyai_original_transcript_json")
+  deeplTranslatedTranscriptJson JsonB? @map("deepl_translated_transcript_json")
+  openaiSummaryText          String?   @map("openai_summary_text")
+  
+  errorMessage               String?   @map("error_message")
+
+  jobMinutesConsumed         Float?    @map("job_minutes_consumed")
+  jobTokensConsumedSummary   Int?      @map("job_tokens_consumed_summary")
+
+  createdAt                  DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt                  DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  completedAt                DateTime? @map("completed_at") @db.Timestamptz(6)
+
+  @@map("jobs") // Maps this model to the 'jobs' table
+  @@index([userId])
+  @@index([status])
+  @@index([assemblyaiJobId])
 }
