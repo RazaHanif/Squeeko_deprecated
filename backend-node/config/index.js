@@ -41,5 +41,13 @@ const config = {
     freeTierUsage: process.env.FREE_TIER_USAGE,
     paidTierUsage: process.env.PAID_TIER_USAGE,
 
-
 }
+
+// Basic validation
+// TODO: Add more checks for critical env vars
+if (!config.databaseUrl) {
+    console.error('FATAL ERROR: DATABASE_URL is not defined!')
+    process.exit(1)
+}
+
+export default config
