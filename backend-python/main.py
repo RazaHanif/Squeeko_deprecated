@@ -37,13 +37,13 @@ async def lifespan(app: FastAPI):
      # Optional: Check if models loaded successfully and raise error if critical
     if transcribe.whisper_model_instance is None:
         print("Startup Error: Whisper model failed to load. Transcription will not work.")
-        # raise RuntimeError("Whisper model load failed")
+        raise RuntimeError("Whisper model load failed")
     if diarize.pyannote_pipeline_instance is None:
         print("Startup Error: Pyannote pipeline failed to load. Diarization will not work.")
-        # raise RuntimeError("Pyannote pipeline load failed")
+        raise RuntimeError("Pyannote pipeline load failed")
     if summarize.llm_model_instance is None:
         print("Startup Error: Summarization pipeline failed to load. Summarization will not work.")
-        # raise RuntimeError("Summarization pipeline load failed")
+        raise RuntimeError("Summarization pipeline load failed")
     
     print("Application startup is complete!")
     yield

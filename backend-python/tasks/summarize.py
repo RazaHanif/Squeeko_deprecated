@@ -12,10 +12,10 @@ from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 # Getting token from env
 from dotenv import load_dotenv
 load_dotenv()
+HUGGING_FACE_HUB_TOKEN = os.getenv("HUGGING_FACE_HUB_TOKEN")
 
 # Select LLM Model
 LLM_MODEL_NAME = os.getenv("LLM_MODEL", "Mistral-7B-Instruct-v0.2")
-
 
 # Detect device type
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
@@ -38,36 +38,43 @@ def load_llm_model():
         try:
             # --- Quantization Config
             # Configure 4-bit quantization for reduced VRAM/Mem usage
-            
+            bnb_config = None
             if DEVICE == "cuda":
+                compute_dtype = torch.float16 # Default for CUDA
+                # For newer GPUs (Ampere series and later), bfloat16 can be more performant
+                # Check if torch.cuda.is_bf16_supported() if you want to enable it conditionally
+                # For example:
+                # if hasattr(torch.cuda, "is_bf16_supported") and torch.cuda.is_bf16_supported():
+                #    compute_dtype = torch.bfloat16
+
                 bnb_config = BitsAndBytesConfig(
                     load_in_4bit=True,
                     bnb_4bit_quant_type="nf4",
                     bnb_4bit_use_double_quant=True,
-                    # bnb_4bit_compute_dtype=torch.bfloat16 -- use only if server has NVIDIA GPU
+                    bnb_4bit_compute_dtype=compute_dtype
                 )
-            else:
-                bnb_config = None
                 
             # --- Load Tokenizer
-            llm_tokenizer_instance = AutoTokenizer.from_pretrained(LLM_MODEL_NAME)
+            llm_tokenizer_instance = AutoTokenizer.from_pretrained(
+                LLM_MODEL_NAME,
+                token=HUGGING_FACE_HUB_TOKEN if HUGGING_FACE_HUB_TOKEN else None
+            )
             
             if llm_tokenizer_instance.pad_token is None:
                 llm_tokenizer_instance.pad_token = llm_tokenizer_instance.eos_token
                 
             # --- Load Model
+            model_kwargs = {
+                "token": HUGGING_FACE_HUB_TOKEN if HUGGING_FACE_HUB_TOKEN else None,
+                "device_map": "auto"
+            }
             if bnb_config:
-                llm_model_instance = AutoModelForCausalLM.from_pretrained(
-                    LLM_MODEL_NAME,
-                    use_auth_token=True,
-                    quantization_config=bnb_config,
-                    device_map="auto"
-                )
-            else:
-                llm_model_instance = AutoModelForCausalLM.from_pretrained(
-                    LLM_MODEL_NAME,
-                    device_map="auto"
-                )
+                model_kwargs["quantization_config"] = bnb_config
+            
+            llm_model_instance = AutoModelForCausalLM.from_pretrained(
+                LLM_MODEL_NAME,
+                **model_kwargs
+            )
                 
             llm_model_instance.eval()
             

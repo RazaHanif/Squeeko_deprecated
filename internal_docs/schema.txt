@@ -1,0 +1,68 @@
+PostgreSQL DB Layout
+
+-- Table: users
+-- Stores user authentication details and profile information.
+
+CREATE TABLE users (
+    -- Basic user info
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    first_name VARCHAR(100),
+    last_name VARCHAR(100),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    last_login TIMESTAMP WITH TIME ZONE,
+
+    -- Usage quota for the current billing cycle.
+    usage_quota_minutes INTEGER NOT NULL DEFAULT 60,
+    usage_consumed_minutes INTEGER NOT NULL DEFAULT 0,
+    usage_quota_summaries INTEGER NOT NULL DEFAULT 5,
+    usage_consumed_summaries INTEGER NOT NULL DEFAULT 0,
+
+    -- Link to Stripe customer ID for payment processing.
+    stripe_customer_id VARCHAR(255) UNIQUE
+);
+
+-- Index for efficient email-based lookups.
+CREATE INDEX idx_users_email ON users (email);
+
+-- Table: jobs
+-- Records each audio processing job submitted by users.
+
+CREATE TABLE jobs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+
+    -- URL of stored audio in cloud
+    audio_file_url TEXT NOT NULL,
+    original_filename VARCHAR(255),
+
+    -- Current status of the job in the processing pipeline.
+    -- ['QUEUED', 'PROCESSING_STT', 'PROCESSING_TRANSLATION', 'PROCESSING_SUMMARY', 'COMPLETED', 'FAILED']
+    status VARCHAR(50) NOT NULL DEFAULT 'QUEUED',
+    
+    -- External API job identifiers for tracking.
+    assemblyai_job_id VARCHAR(255) UNIQUE,
+    
+    -- Stored outputs from API providers for traceability and retrieval.
+    assemblyai_original_transcript_json JSONB,
+    deepl_translated_transcript_json JSONB,
+    openai_summary_text TEXT,
+    
+    -- Detailed error message if the job fails
+    error_message TEXT,
+
+    -- Resource consumption metrics for quota management.
+    job_minutes_consumed REAL,
+    job_tokens_consumed_summary INTEGER,
+
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    completed_at TIMESTAMP WITH TIME ZONE
+);
+
+-- Indexes for efficient job retrieval and status filtering.
+CREATE INDEX idx_jobs_user_id ON jobs (user_id);
+CREATE INDEX idx_jobs_status ON jobs (status);
+CREATE INDEX idx_jobs_assemblyai_job_id ON jobs (assemblyai_job_id);
