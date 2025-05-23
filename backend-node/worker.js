@@ -1,0 +1,1 @@
+// Dedicated entry point for BullMQ workers
