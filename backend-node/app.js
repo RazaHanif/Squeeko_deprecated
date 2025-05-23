@@ -78,5 +78,8 @@ const start = async () => {
     }
 }
 
+// TODO: Implement graceful shutdown
+
 // Just for testing
 start()
+

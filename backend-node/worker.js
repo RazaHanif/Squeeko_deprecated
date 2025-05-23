@@ -34,7 +34,14 @@ worker.on('completed', (job) => {
     console.log(`Job ${job.id} completed successfully`)
 })
 
-worker.on('completed', (job) => {
-    console.log(`Job ${job.id} completed successfully`)
+worker.on('failed', (job) => {
+    // Should be proper error reporting here
+    console.error(`Job ${job.id} failed`)
 })
 
+worker.on('error', (err) => {
+    console.error('Worker error:', err)
+})
+
+
+// TODO: Implement graceful shutdown
