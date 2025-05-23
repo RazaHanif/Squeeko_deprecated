@@ -25,10 +25,6 @@ const express = require('express')
 const app = express()
 
 
-// Just for testing
-const port = process.env.PORT || 3000
-
-
 // Middleware
 app.use(express.json())
 app.use(cors())
@@ -38,11 +34,29 @@ app.use(morgan('dev'))
 // Routes
 app.use('/api/auth', authRoutes)
 app.use('/api/jobs', jobRoutes)
+// More will be added...i think
 
-// Routes
-const summaryRouter = require('./routes/summarize')
+// AssemblyAI Webhook
+// Cannot be behind any auth middleware
+app.post('/api/webhooks/assemblyai', (req, res, next) => {
+    // TODO: Implement webhook verification (AssemblyAI provides a signiture)
+    // Ensure this endpoint is robust and handles potential retries from AssemblyAI
+    // Pass the webhook data to next step in '/services/job'
+    // Quickly send ack (res.status(200).send("OK"))
+    // Then queue up actual processing of webhook data as BullMQ job 
+    console.log('AssemblyAI Webhook Received: ', req.body)
 
-app.use('/api/summarize', summaryRouter);
+    // jobService.handleAssemblyAIWebhook(req.body)
+    res.status(200).send('OK')
+})
+
+// Health Check for Fly.io
+app.get('/healthz', (req, res) => {
+    res.status(200).send('OK')
+})
+
+// Error Handling Middleware
+app.use(errorHandler)
 
 app.get('/', (req, res) => {
     res.status(200).json({
@@ -50,7 +64,10 @@ app.get('/', (req, res) => {
     })
 })
 
+
 // Server
+const port = process.env.PORT || 3000
+
 const start = async () => {
     try {
         app.listen(port, () => {
