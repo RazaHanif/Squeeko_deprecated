@@ -27,5 +27,5 @@ export const registerUser = async (email, password, firstName, lastName) => {
 }
 
 export const loginUser = async (email, password) => {
-    
+    const user = await prisma.user.findUnique
 }
