@@ -9,7 +9,7 @@ import * as alignment from '../utils/align'
 
 
 export const createJobRecord = async (userId, fileKey, originalFilename) => {
-    // TOOD: Check user's current usage quota before creating new job
+    // TODO: Check user's current usage quota before creating new job
     //       if quota exceeded throw error
     
     const job = await prisma.job.create({
@@ -161,7 +161,23 @@ export const processSummarization = async (jobId, translatedSegments) => {
         // Format translatedSegments into a readable string for LLM
 
         const formattedTranscript = alignment.formatTranscriptForLLM(translatedSegments)
-        const summary = await open
+        const summary = await openAI.getSummary(formattedTranscript)
+
+        await prisma.job.update({
+            where: {
+                id: jobId
+            },
+            data: {
+                status: 'COMPLETED',
+                openaiSummaryText: summary.text,
+                jobTokensConsumedSummary: summary.tokens,
+                competedAt: new Date()
+            }
+        })
+
+        // TODO: Update user's usage_consumed_summaris & usage_consumed_mins
+        // TODO: Notify user of completion
+
     } catch (error) {
         console.error(`Error in translation for job: ${jobId}`, error)
         await prisma.job.update({
@@ -175,3 +191,5 @@ export const processSummarization = async (jobId, translatedSegments) => {
         })
     }
 }
+
+// Add more funcs for user quota management, job listing etc.
