@@ -111,7 +111,7 @@ export const handleAssAI = async (data) => {
 }
 
 // Func to be called by BullMQ workers
-export default processTranslation = async (jobId, originalTranscript) => {
+export const processTranslation = async (jobId, originalTranscript) => {
     
     // Translate the transcript with DeepL
     try {
@@ -151,3 +151,22 @@ export default processTranslation = async (jobId, originalTranscript) => {
     }
 }
 
+// Func to be called by BullMQ workers
+export const processSummarization = async (jobId, originalTranscript) => {
+    
+    // Summarize with OpenAI
+    try {
+        
+    } catch (error) {
+        console.error(`Error in translation for job: ${jobId}`, error)
+        await prisma.job.update({
+            where: {
+                id: jobId
+            },
+            data: {
+                status: 'FAILED',
+                errorMessage: `Translation failed: ${error.message}`
+            }
+        })
+    }
+}
