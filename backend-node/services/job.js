@@ -137,6 +137,8 @@ export const processTranslation = async (jobId, originalTranscript) => {
                 deepLTranslatedTranscriptJson: translatedSegments
             }
         })
+
+        return translatedSegments
     } catch (error) {
         console.error(`Error in translation for job: ${jobId}`, error)
         await prisma.job.update({
@@ -152,11 +154,14 @@ export const processTranslation = async (jobId, originalTranscript) => {
 }
 
 // Func to be called by BullMQ workers
-export const processSummarization = async (jobId, originalTranscript) => {
+export const processSummarization = async (jobId, translatedSegments) => {
     
     // Summarize with OpenAI
     try {
-        
+        // Format translatedSegments into a readable string for LLM
+
+        const formattedTranscript = alignment.formatTranscriptForLLM(translatedSegments)
+        const summary = await open
     } catch (error) {
         console.error(`Error in translation for job: ${jobId}`, error)
         await prisma.job.update({
