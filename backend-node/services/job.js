@@ -41,4 +41,16 @@ export const getJobById = async (jobId, userId) => {
 }
 
 
-export const addJobToQueue = async 
+export const addJobToQueue = async (jobId, fileKey) => {
+    // Add to BullMQ queue for background processing
+    // Job data should contain everyhing the workers need
+    await transcriptionQueue.add(
+        'processAudio',
+        {
+            jobId,
+            fileKey
+        } 
+    )
+
+    // Update job status to 'QUEUED' if not already set
+}
