@@ -54,3 +54,7 @@ export const addJobToQueue = async (jobId, fileKey) => {
 
     // Update job status to 'QUEUED' if not already set
 }
+
+export const handleAssemblyAIWebhook = async (data) => {
+    // TODO: Validate 
+}
