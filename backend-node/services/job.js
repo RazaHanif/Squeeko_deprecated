@@ -89,7 +89,7 @@ export const handleAssAI = async (data) => {
 
         // Add new job to queue for translation
         await transcriptionQueue.add(
-            'translateAndSummarize', 
+            'translateAndSummarize',
             { 
                 jobId: job.id,
                 originalTranscript
@@ -100,7 +100,7 @@ export const handleAssAI = async (data) => {
             where: {
                 id: job.id
             },
-            
+
 
         })
     }
