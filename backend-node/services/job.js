@@ -39,3 +39,6 @@ export const getJobById = async (jobId, userId) => {
 
     return job
 }
+
+
+export const addJobToQueue = async 
