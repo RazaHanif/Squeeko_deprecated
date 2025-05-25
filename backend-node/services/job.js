@@ -22,3 +22,12 @@ export const createJobRecord = async (userId, fileKey, originalFilename) => {
     })
     return job
 }
+
+export const getJobById = async (jobId, userId) => {
+    // Current user must be job user
+    const job = await prisma.job.findUnique({
+        where: {
+            
+        }
+    })
+}
