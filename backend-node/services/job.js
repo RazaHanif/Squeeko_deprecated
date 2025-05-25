@@ -71,6 +71,24 @@ export const handleAssAI = async (data) => {
 
     if (!job) {
         console.warn(`Webhook received for unkown job: ${assAiJobId}`)
-        return 
+        return new Error('Webook job id not found')
     }
+
+    if (status == 'completed') {
+        const originalTranscript = await assemblyAI.getTranscriptionResult(assAiJobId)
+        await prisma.job.update({
+            where: {
+                id: job.id
+            },
+            data: {
+                status: 'PROCESSING',
+                assemblyOriginalTranscriptJson: originalTranscript,
+                jobMinutesConsumed: data.audio_duraction / 60
+            }
+        })
+        
+    }
+
+
+
 }
