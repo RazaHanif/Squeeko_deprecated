@@ -56,5 +56,6 @@ export const addJobToQueue = async (jobId, fileKey) => {
 }
 
 export const handleAssemblyAIWebhook = async (data) => {
-    // TODO: Validate 
+    // TODO: Validate webhookData
+    // Handle errors if validation fails
 }
