@@ -33,6 +33,10 @@ export const getJobStatus = async (req, res, next) => {
         const jobId = req.params.id // Job ID from URL Params?
 
         const job = await jobService.getJobById(jobId, userId)
+
+        if (!job) {
+            return 
+        }
     } catch (err) {
         next(err)
     }
