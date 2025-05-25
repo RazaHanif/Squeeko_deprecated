@@ -55,7 +55,22 @@ export const addJobToQueue = async (jobId, fileKey) => {
     // Update job status to 'QUEUED' if not already set
 }
 
-export const handleAssemblyAIWebhook = async (data) => {
+export const handleAssAI = async (data) => {
     // TODO: Validate webhookData
     // Handle errors if validation fails
+
+    const assAiJobId = data.id
+    const status = data.status 
+    const audioUrl = data.audio_url
+
+    const job = await prisma.job.findUnique({
+        where: {
+            assAiJobId
+        }
+    })
+
+    if (!job) {
+        console.warn(`Webhook received for unkown job: ${assAiJobId}`)
+        return 
+    }
 }
