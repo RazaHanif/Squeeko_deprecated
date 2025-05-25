@@ -143,7 +143,11 @@ export default processTranslation = async (jobId, originalTranscript) => {
             where: {
                 id: jobId
             },
-            
+            data: {
+                status: 'FAILED',
+                errorMessage: `Translation failed: ${error.message}`
+            }
         })
     }
 }
+
