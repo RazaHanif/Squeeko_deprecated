@@ -102,12 +102,12 @@ export const handleAssAI = async (data) => {
             },
             data: {
                 status: 'FAILED',
-                error
+                error: data.error
             }
-
         })
+        // TODO: Notify user of error
     }
-
-
-
+    // Handle other cases
 }
+
+// Func to be called by BullMQ workers
