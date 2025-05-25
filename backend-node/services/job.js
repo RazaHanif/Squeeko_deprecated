@@ -100,7 +100,10 @@ export const handleAssAI = async (data) => {
             where: {
                 id: job.id
             },
-
+            data: {
+                status: 'FAILED',
+                error
+            }
 
         })
     }
