@@ -74,7 +74,7 @@ export const handleAssAI = async (data) => {
         return new Error('Webook job id not found')
     }
 
-    if (status == 'completed') {
+    if (status === 'completed') {
         const originalTranscript = await assemblyAI.getTranscriptionResult(assAiJobId)
         await prisma.job.update({
             where: {
@@ -86,7 +86,23 @@ export const handleAssAI = async (data) => {
                 jobMinutesConsumed: data.audio_duraction / 60
             }
         })
-        
+
+        // Add new job to queue for translation
+        await transcriptionQueue.add(
+            'translateAndSummarize', 
+            { 
+                jobId: job.id,
+                originalTranscript
+            }
+        )
+    } else if (status === 'error') {
+        await prisma.job.update({
+            where: {
+                id: job.id
+            },
+            
+
+        })
     }
 
 
