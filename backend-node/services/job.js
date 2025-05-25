@@ -27,7 +27,15 @@ export const getJobById = async (jobId, userId) => {
     // Current user must be job user
     const job = await prisma.job.findUnique({
         where: {
-            
+            id: jobId,
+            userId: userId 
         }
     })
+    
+
+    if(!job) {
+        throw new Error('Job not found')
+    }
+
+    return job
 }
