@@ -134,12 +134,16 @@ export default processTranslation = async (jobId, originalTranscript) => {
             },
             data: {
                 status: 'PROCESSING_SUMMARY',
-                t
+                deepLTranslatedTranscriptJson: translatedSegments
             }
-
         })
-
     } catch (error) {
-        
+        console.error(`Error in translation for job: ${jobId}`, error)
+        await prisma.job.update({
+            where: {
+                id: jobId
+            },
+            
+        })
     }
 }
