@@ -17,10 +17,23 @@ export const createJob = async (req, res, next) => {
         await jobService.addJobToQueue(job.id, fileKey)
 
         res.status(202).json({
-            message: 'Audio upload initiated and job queued. Please upload file to the provided URL.'
-            
+            message: 'Audio upload initiated and job queued. Please upload file to the provided URL.',
+            jobId: job.id,
+            uploadUrl: uploadUrl,
+            fileKey: fileKey
         })
     } catch (err) {
         next(err)
     }
 }
+
+export const getJobStatus = async (req, res, next) => {
+    try {
+        const UserId = req.user.id
+        
+    } catch (err) {
+        next(err)
+    }
+}
+
+// Add a webhook
