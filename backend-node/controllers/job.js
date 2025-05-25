@@ -43,11 +43,19 @@ export const getJobStatus = async (req, res, next) => {
         res.status(200).json({
             jobId: job.id,
             status: job.status,
-            
+            transcript: job.transcript, // Deepl translated transcirpt
+            summary: job.summary // Openai summary -- idk if its needed here
+            // More if needed
         })
     } catch (err) {
         next(err)
     }
 }
 
-// Add a webhook
+
+export const assAi = async (req, res, next) => {
+    // Add a webhook handler for AssemblyAI 
+    // This will be called by AssemblyAI, not directly be frontend at all
+    // Will update the job status and trigger subsequent steps in the queue
+    next()
+}
