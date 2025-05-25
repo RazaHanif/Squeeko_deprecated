@@ -29,8 +29,10 @@ export const createJob = async (req, res, next) => {
 
 export const getJobStatus = async (req, res, next) => {
     try {
-        const UserId = req.user.id
-        
+        const userId = req.user.id
+        const jobId = req.params.id // Job ID from URL Params?
+
+        const job = await jobService.getJobById(jobId, userId)
     } catch (err) {
         next(err)
     }
