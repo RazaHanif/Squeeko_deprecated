@@ -111,4 +111,35 @@ export const handleAssAI = async (data) => {
 }
 
 // Func to be called by BullMQ workers
-export default process
+export default processTranslation = async (jobId, originalTranscript) => {
+    
+    // Translate the transcript with DeepL
+    try {
+        const translatedSegments = []
+        let totalChar = 0
+        for (const utterance of originalTranscript.utterances) {
+            const translatedText = await deelL.translateText(utterance.text, 'en')
+            translatedSegments.push({
+                speaker: utterance.speaker,
+                start: utterance.start,
+                end: utterance.end,
+                text: translatedText
+            })
+            totalChar += translatedText.length
+        }
+
+        await prisma.job.update({
+            where: {
+                id: jobId
+            },
+            data: {
+                status: 'PROCESSING_SUMMARY',
+                t
+            }
+
+        })
+
+    } catch (error) {
+        
+    }
+}
