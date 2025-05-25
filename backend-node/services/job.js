@@ -111,3 +111,4 @@ export const handleAssAI = async (data) => {
 }
 
 // Func to be called by BullMQ workers
+export default process
