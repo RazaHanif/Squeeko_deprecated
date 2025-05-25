@@ -31,8 +31,8 @@ export const getJobById = async (jobId, userId) => {
             userId: userId 
         }
     })
-    
 
+    // Error handling
     if(!job) {
         throw new Error('Job not found')
     }
