@@ -1,3 +1,8 @@
 // Main AssemblyAI logic
 
-// Step 13 --
+import axios from 'axios'
+import config from '../config'
+
+const API_BASE_URL = 'https://api.assemblyai.com/v2'
+
+ 
