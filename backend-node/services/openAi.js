@@ -19,28 +19,28 @@ export const getSummary = async (transcriptText) => {
                 },
                 {
                     role: 'user',
-                    content:    `Analyze the following meeting transcript. 
-                                Identify the main topic, provide a concise summary, extract key discussion points, and list any tasks or action items.
+                    content: `Analyze the following meeting transcript. 
+Identify the main topic, provide a concise summary, extract key discussion points, and list any tasks or action items.
 
-                                Return your response as a **valid JSON object** with this structure:
+Return your response as a **valid JSON object** with this structure:
 
-                                {
-                                    "mainTopic": "A concise, overarching topic of the discussion.",
-                                    "summary": "A brief summary of the entire conversation, highlighting the most important themes and outcomes.",
-                                    "keyPoints": ["Bullet point 1", "Bullet point 2", "..."],
-                                    "tasks": ["Task description, including responsible person if mentioned or implied"]
-                                }
+{
+    "mainTopic": "A concise, overarching topic of the discussion.",
+    "summary": "A brief summary of the entire conversation, highlighting the most important themes and outcomes.",
+    "keyPoints": ["Bullet point 1", "Bullet point 2", "..."],
+    "tasks": ["Task description, including responsible person if mentioned or implied"]
+}
 
-                                Transcript:
-                                ---
-                                ${transcriptText}
-                                ---
+Transcript:
+---
+${transcriptText}
+---
 
-                                Make sure:
-                                - The JSON is valid and parsable.
-                                - The 'tasks' field includes names (if available) or speaker labels (like 'Speaker 1') when responsibility is implied.
-                                - If no tasks are mentioned, return an empty array for "tasks".
-                                `
+Make sure:
+- The JSON is valid and parsable.
+- The 'tasks' field includes names (if available) or speaker labels (like 'Speaker 1') when responsibility is implied.
+- If no tasks are mentioned, return an empty array for "tasks".
+`
                 }
             ]
         })
