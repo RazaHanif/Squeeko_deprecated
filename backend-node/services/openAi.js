@@ -13,6 +13,7 @@ export const getSummary = async (transcriptText) => {
             model: 'gpt-3.5-turbo',
             temperature: 0.2,
             max_tokens: 1000,
+            response_format: 'json',
             messages: [
                 {
                     role: 'system',
@@ -45,6 +46,10 @@ Make sure:
                 }
             ]
         })
+        const data = response.choices[0].message.tool_calls[0].function.arguments
+        const tokensUsed = response.usage.total_tokens
+        
+        return { text: data, tokens: tokensUsed }
     } catch (err) {
         console.error('Error getting sumamry from OpenAi:', err.response?.data || err.message)
         throw new Error('Failed to generate summary with OpenAI')
