@@ -45,3 +45,7 @@ export const getTranscriptionResult = async (assemblyAiJobId) => {
         throw new Error('Error fetching AssembleyAI transcription')
     }
 }
+
+// TODO: Implement webhook verification here or in middleware
+// AssemblyAI sends a signature in the header
+// Need to verify it to ensure the webhook is legit
