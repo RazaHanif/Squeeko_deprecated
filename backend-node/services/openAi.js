@@ -46,7 +46,7 @@ Make sure:
                 }
             ]
         })
-        const data = response.choices[0].message.tool_calls[0].function.arguments
+        const data = JSON.parse(response.choices[0].message.tool_calls[0].function.arguments)
         const tokensUsed = response.usage.total_tokens
         
         return { text: data, tokens: tokensUsed }
