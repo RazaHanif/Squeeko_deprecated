@@ -14,4 +14,5 @@ export const transcriptionQueue = new Queue('transcriptionQueue', { connection }
 export const translationQueue = new Queue('translationQueue', { connection })
 export const summarizationQueue = new Queue('summarizationQueue', { connection })
 
-// 
+// Maybe add defualt job options .......if i knew what that was
+
