@@ -22,8 +22,26 @@ export const startTranscription = async (audioUrl, webhookUrl) => {
                 }
             }
         )
-        
+        return response.data
     } catch (err) {
-        
+        console.error('Error starting AssembleyAI transcription:', err.response?.data || err.message)
+        throw new Error('Error starting AssembleyAI transcription')
+    }
+}
+
+export const getTranscriptionResult = async (assemblyAiJobId) => {
+    try {
+        const response = await axios.get(
+            `${API_BASE_URL}/transcript/${assemblyAiJobId}`,
+            {
+                headers: {
+                    'Authorization': config.assemblyAI.apiKey,
+                }
+            }
+        )
+        return response.data
+    } catch (err) {
+        console.error('Error fetching AssembleyAI transcription:', err.response?.data || err.message)
+        throw new Error('Error fetching AssembleyAI transcription')
     }
 }
