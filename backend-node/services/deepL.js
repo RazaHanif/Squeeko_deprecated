@@ -24,7 +24,7 @@ export const translateText = async (text, targetLang='en') => {
         )
         return response.data.translations[0].text
     } catch (err) {
-        console.err('Error translating text with DeepL:', err.response?.data || err.message)
+        console.error('Error translating text with DeepL:', err.response?.data || err.message)
         throw new Error('Failed translating text with DeepL')
     }
 }

@@ -12,6 +12,7 @@ export const getSummary = async (transcriptText) => {
         const response = await openai.chat.completions.create({
             model: 'gpt-3.5-turbo',
             temperature: 0.2,
+            max_tokens: 1000,
             messages: [
                 {
                     role: 'system',
@@ -45,7 +46,7 @@ Make sure:
             ]
         })
     } catch (err) {
-        console.err('Error getting sumamry from OpenAi:', err.response?.data || err.message)
+        console.error('Error getting sumamry from OpenAi:', err.response?.data || err.message)
         throw new Error('Failed to generate summary with OpenAI')
     }
 }
