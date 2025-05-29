@@ -14,7 +14,7 @@ export const getSummary = async (transcriptText) => {
             messages: [
                 {
                     role: 'system',
-                    content: 'You are a helpful assistant that summarizes transcripts. Provide a main topic, '
+                    content: 'You are a helpful assistant that summarizes transcripts. Analyze the following meeting transcript, identify the main topic, provide a concise summary, extract key discussion points, and list any action items or tasks mentioned.'
                 }
             ]
         })
