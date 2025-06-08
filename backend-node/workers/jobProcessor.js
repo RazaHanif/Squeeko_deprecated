@@ -26,7 +26,8 @@ export const processJob = async (job) => {
             }
         })
 
-        // TODO: 
+        // TODO: The rest of the pipeline (DeepL, OpenAI) will be triggered by AssemblyAI Webhook
+        // Which wll then add *new* job to the queue (translate&summarize)
 
 
     } catch (err) {
@@ -41,3 +42,14 @@ export const processJob = async (job) => {
         throw err
     }
 }
+
+// HINT: You'll likely have another job type for the translation/summarization step,
+//       triggered by the AssemblyAI webhook.
+//       Example:
+// export const processTranslateAndSummarizeJob = async (job) => {
+//     const { jobId, originalTranscript } = job.data;
+//     await jobService.processTranslationAndSummarization(jobId, originalTranscript);
+// };
+
+// HINT: Your worker.js will listen for different job names and call the appropriate processor functions.
+// 
