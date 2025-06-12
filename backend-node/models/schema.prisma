@@ -43,8 +43,8 @@ model Job {
   
   assemblyaiJobId            String?   @unique @map("assemblyai_job_id")
   
-  assemblyaiOriginalTranscriptJson JsonB? @map("assemblyai_original_transcript_json")
-  deeplTranslatedTranscriptJson JsonB? @map("deepl_translated_transcript_json")
+  assemblyaiOriginalTranscriptJson String? @map("assemblyai_original_transcript_json")
+  deeplTranslatedTranscriptJson String? @map("deepl_translated_transcript_json")
   openaiSummaryText          String?   @map("openai_summary_text")
   
   errorMessage               String?   @map("error_message")
