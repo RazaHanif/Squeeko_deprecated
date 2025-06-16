@@ -17,7 +17,7 @@ Squeeko is a powerful SaaS platform that converts speech to text, provides AI-po
 
 ---
 
-## Coming <s>Soon</s>Never
+## Coming <s>Soon</s> Never...maybe...idk yet
 
 Turns out self hosting AI models is really expensive.
 The python backend has my fully built out self hosted logic, but I underestimated the GPU usage to run the models. 
