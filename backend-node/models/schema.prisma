@@ -56,7 +56,7 @@ model Job {
   updatedAt                  DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
   completedAt                DateTime? @map("completed_at") @db.Timestamptz(6)
 
-  @@map("jobs") // Maps this model to the 'jobs' table
+  @@map("jobs")
   @@index([userId])
   @@index([status])
   @@index([assemblyaiJobId])

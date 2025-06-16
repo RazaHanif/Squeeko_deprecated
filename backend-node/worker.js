@@ -1,18 +1,9 @@
-// Dedicated entry point for BullMQ workers
-
-// Basic Imports
 import { Queue, Worker } from 'bullmq'
 import Redis from 'ioredis'
-
-// Import config
 import config from './config'
-
-// Import job processor
 import { processJob } from './workers/jobProcessor'
 
 // Redis Connection
-// -- Use a separate Redis instance for BullMQ
-// -- Fly.io has a redis add on that can help with this
 const connection = new Redis(config.redisUrl, {
     maxRetriesPerRequest: null,
     enableReadyCheck: false,
@@ -42,6 +33,3 @@ worker.on('failed', (job) => {
 worker.on('error', (err) => {
     console.error('Worker error:', err)
 })
-
-
-// TODO: Implement graceful shutdown

@@ -17,21 +17,19 @@ Squeeko is a powerful SaaS platform that converts speech to text, provides AI-po
 
 ---
 
-## 🧱 Tech Stack
+## Coming <s>Soon</s>Never
 
-🤫 **Classified** — its like magic ✨
+Turns out self hosting AI models is really expensive.
+The python backend has my fully built out self hosted logic, but I underestimated the GPU usage to run the models. 
+I started on the API hosted version of the product, but lowkey self hosting it was 75% of the appeal for me, and I kinda lost intrest.
 
----
-
-## 🧪 Coming Soon
-
-...
+Moved onto Squeeko V2 - https://github.com/RazaHanif/Squeeko
 
 ---
 
 ## 🔒 License
 
-This project is proprietary and not open source, even tho you can read all the code here.... All rights reserved... i guess.
+This project is proprietary and not open source, even tho you can read all the code here.... All rights reserved... I guess.
 
 ---
 

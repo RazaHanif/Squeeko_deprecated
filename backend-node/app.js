@@ -1,23 +1,16 @@
-// Node Backend
-
-
-// Basic Imports
 import cors from 'cors'
 import helmet from 'helmet'
 import morgan from 'morgan'
 
 
-// Import Config
 require('dotenv').config()
 import config from './config'
 
 
-// Import Routes
 import authRoutes from './routes/auth'
 import jobRoutes from './routes/job'
 
 
-// Import Middleware
 import { errorHandler } from './middleware/error'
 import { authHandler } from './middleware/auth'
 
@@ -40,22 +33,12 @@ app.use('/api/jobs', jobRoutes)
 // Cannot be behind any auth middleware
 app.post('/api/webhooks/assemblyai', (req, res, next) => {
     // TODO: Implement webhook verification (AssemblyAI provides a signiture)
-    // Ensure this endpoint is robust and handles potential retries from AssemblyAI
-    // Pass the webhook data to next step in '/services/job'
-    // Quickly send ack (res.status(200).send("OK"))
-    // Then queue up actual processing of webhook data as BullMQ job 
     console.log('AssemblyAI Webhook Received: ', req.body)
 
-    // jobService.handleAssemblyAIWebhook(req.body)
     res.status(200).send('OK')
 })
 
-// Health Check for Fly.io
-app.get('/healthz', (req, res) => {
-    res.status(200).send('OK')
-})
 
-// Error Handling Middleware
 app.use(errorHandler)
 
 app.get('/', (req, res) => {
@@ -78,8 +61,6 @@ const start = async () => {
     }
 }
 
-// TODO: Implement graceful shutdown
 
-// Just for testing
 start()
 

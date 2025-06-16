@@ -1,5 +1,3 @@
-// API Routing for auth
-
 import express from 'express'
 import * as auth from '../controllers/auth'
 

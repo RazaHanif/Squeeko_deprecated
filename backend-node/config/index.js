@@ -1,6 +1,3 @@
-// Centralized config file
-
-// Load env variables from .env
 import dotenv from 'dotenv'
 
 dotenv.config()
@@ -43,8 +40,6 @@ const config = {
 
 }
 
-// Basic validation
-// TODO: Add more checks for critical env vars
 if (!config.databaseUrl) {
     console.error('FATAL ERROR: DATABASE_URL is not defined!')
     process.exit(1)

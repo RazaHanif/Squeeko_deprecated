@@ -1,5 +1,3 @@
-// Func to process jobs from queue will go here
-
 import * as jobService from '../services/job'
 import * as assemblyaiService from '../services/assemblyAi'
 import * as deeplService from '../services/deepL'
@@ -42,14 +40,3 @@ export const processJob = async (job) => {
         throw err
     }
 }
-
-// HINT: You'll likely have another job type for the translation/summarization step,
-//       triggered by the AssemblyAI webhook.
-//       Example:
-// export const processTranslateAndSummarizeJob = async (job) => {
-//     const { jobId, originalTranscript } = job.data;
-//     await jobService.processTranslationAndSummarization(jobId, originalTranscript);
-// };
-
-// HINT: Your worker.js will listen for different job names and call the appropriate processor functions.
-// 
